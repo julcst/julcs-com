@@ -1,10 +1,42 @@
 @font-face {
   font-family: JetBrainsMono;
   src: url(fonts/JetBrainsMono-Medium.woff2);
-  font-weight: medium;
+  font-weight: normal;
   font-display: swap;
 }
 
 * {
   font-family: JetBrainsMono;
+  overflow: hidden;
+}
+
+html {
+  height: 100%;
+  margin: 0;
+  background-color: rgb(32, 32, 32);
+}
+
+main {
+  flex: 50%;
+  padding: 2%;
+  background-color: rgb(253, 235, 214);
+}
+
+.artwork {
+  flex: 50%;
+}
+
+body {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.cursor {
+  opacity: 1;
+  animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
 }
