@@ -1,29 +1,39 @@
 @font-face {
-  font-family: JetBrainsMono;
+  font-family: JetBrainsMono, monospace;
   src: url(fonts/JetBrainsMono-Regular.woff2);
   font-weight: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: JetBrainsMono;
+  font-family: JetBrainsMono, monospace;
   src: url(fonts/JetBrainsMono-Bold.woff2);
   font-weight: bold;
   font-display: swap;
 }
 
+:root {
+  --color-bg: hsl(0, 0%, 95%);
+  --color-front: hsl(0, 0%, 5%);
+}
+
 html {
   height: 100%;
   margin: 0;
-  background-color: rgb(32, 32, 32);
-  font-family: JetBrainsMono;
+  background-color: var(--color-bg);
+  font-family: JetBrainsMono, monospace;
   overflow: hidden;
 }
 
 main {
-  flex: 50%;
+  position: fixed;
+  top: 2vmax;
+  bottom: 4vmax;
+  left: 2vmax;
+  width: 50%;
   padding: 2%;
-  background-color: rgb(253, 235, 214);
+  border: 0.1em solid var(--color-front);
+  box-shadow: 0.3em 0.3em
 }
 
 .artwork {
@@ -31,8 +41,6 @@ main {
 }
 
 body {
-  display: flex;
-  flex-direction: row;
   height: 100%;
 }
 
