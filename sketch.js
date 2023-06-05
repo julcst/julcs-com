@@ -12,17 +12,15 @@ const gl = canvas.getContext("webgl2", {
 // Compile Shaders
 const vertexShader = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(vertexShader, `
-    attribute vec2 position;
+    attribute vec2 pos;
     uniform float scale;
     uniform float t;
-    uniform bool flipGrid;
     float slerp(float x) {
         float t = clamp(x, 0.0, 1.0);
         return t * t * (3.0 - 2.0 * t);
     }
     void main() {
-        vec2 grid = (position - 0.5) * 2.0;
-        vec2 pos = flipGrid ? position.yx : position.xy;
+        vec2 grid = (pos - 0.5) * 2.0;
         float x = t + pos.x * 10.0;
         vec2 a = vec2(sin(x * 0.3) * 0.5 + sin(x * 0.8) * 0.5, sin(x * 0.7) * 0.5 + sin(x * 0.1) * 0.5);
         vec2 b = vec2(sin(x * 0.5) * 0.5 + sin(x * 0.4) * 0.5, sin(x * 0.2) * 0.5 + sin(x * 0.9) * 0.5);
@@ -56,26 +54,27 @@ gl.useProgram(program);
 // Bind unifoms
 const uT = gl.getUniformLocation(program, "t");
 const uScale = gl.getUniformLocation(program, "scale");
-const uFlipGrid = gl.getUniformLocation(program, "flipGrid");
+
+// Configuration
+const s = 20;
+const m = 115;
+const n = 67;
 
 // Bind points
-const positionLocation = gl.getAttribLocation(program, "position");
+const positionLocation = gl.getAttribLocation(program, "pos");
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 const positions = [];
-const s = 20;
-for (let i = 0; i <= canvas.width; i+=s) {
-    for (let j = 0; j <= canvas.height; j+=s) {
-        positions.push(i / canvas.width, j / canvas.height);
+for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+        positions.push(i / m, j / n);
     }
 }
-console.log(positions);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 gl.enableVertexAttribArray(positionLocation);
 gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
 // Render loop
-gl.uniform1i(uFlipGrid, canvas.width < canvas.height);
 gl.uniform1f(uScale, s);
 const start = Date.now();
 requestAnimationFrame(render);
