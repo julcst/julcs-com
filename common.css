@@ -28,10 +28,8 @@ html {
 
 main {
   position: fixed;
-  top: 2vmax;
-  bottom: 4vmax;
-  left: 2vmax;
-  width: 50%;
+  margin: 2vmax;
+  width: 30ex;
   padding: 1em;
   border: 0.1em solid;
   box-shadow: 0.3em 0.3em;
