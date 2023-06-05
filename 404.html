@@ -3,11 +3,24 @@
 <head>
     <meta charset=utf-8>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preload" as="font" href="fonts/JetBrainsMono-Medium.woff2" crossorigin="anonymous">
+    <!--TODO: Add OpenGraph img for Messenger preview-->
+    <link rel="preload" as="font" href="fonts/JetBrainsMono-Regular.woff2" crossorigin="anonymous">
+    <link rel="preload" as="font" href="fonts/JetBrainsMono-Bold.woff2" crossorigin="anonymous">
+    <!--TODO: favicons (https://realfavicongenerator.net)-->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="stylesheet" href="common.css">
-    <title>404 - page not found</title>
+    <title>julcs</title>
 </head>
 <body>
-    <p>Oops, such empty here! Looks like you stepped a little beyond what I planned here.</p>
+    <main>
+        <span class="typed">
+            you seem a little lost<br>
+            > take me home</span><span class="cursor">_</span>
+    </main>
+    <canvas id="sketch"></canvas>
 </body>
 </html>
+<script src="common.js" type="text/javascript"></script>
+<script src="sketch.js" type="text/javascript"></script>
