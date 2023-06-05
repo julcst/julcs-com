@@ -21,6 +21,7 @@ html {
   height: 100%;
   margin: 0;
   background-color: var(--color-bg);
+  color: var(--color-front);
   font-family: JetBrainsMono, monospace;
   overflow: hidden;
 }
@@ -32,20 +33,24 @@ main {
   left: 2vmax;
   width: 50%;
   padding: 1em;
-  border: 0.1em solid var(--color-front);
-  box-shadow: 0.3em 0.3em
+  border: 0.1em solid;
+  box-shadow: 0.3em 0.3em;
+  background-color: var(--color-bg);
 }
 
-.artwork {
-  flex: 50%;
+#sketch {
+  position: fixed;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
 }
 
 body {
+  margin: 0;
   height: 100%;
 }
 
 .cursor {
-  opacity: 1;
   animation: blink 0.7s infinite;
 }
 
