@@ -10,15 +10,20 @@ gl.enable(0x0B10);
 const vertexShader = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(vertexShader, `
     attribute vec2 pos;
+    uniform float scale;
     uniform float t;
+    float slerp(float x) {
+        float t = clamp(x, 0.0, 1.0);
+        return t * t * (3.0 - 2.0 * t);
+    }
     void main() {
         vec2 grid = (pos - 0.5) * 2.0;
         float x = t + pos.x * 10.0;
         vec2 a = vec2(sin(x * 0.3) * 0.5 + sin(x * 0.8) * 0.5, sin(x * 0.7) * 0.5 + sin(x * 0.1) * 0.5);
         vec2 b = vec2(sin(x * 0.5) * 0.5 + sin(x * 0.4) * 0.5, sin(x * 0.2) * 0.5 + sin(x * 0.9) * 0.5);
         vec2 p = mix(a, b, pos.y);
-        gl_PointSize = mix(0.0, 10.0, pos.y * pos.x);
-        gl_Position = vec4(p, 0, 1);
+        gl_PointSize = mix(0.0, 1.0, pos.y * pos.x) * scale;
+        gl_Position = vec4(mix(grid, p, slerp((t - 1.0) / 7.0)), 0, 1);
     }`);
 gl.compileShader(vertexShader);
 if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
@@ -40,6 +45,7 @@ gl.attachShader(program, fragmentShader);
 gl.linkProgram(program);
 gl.useProgram(program);
 const uT = gl.getUniformLocation(program, "t");
+const uScale = gl.getUniformLocation(program, "scale");
 const positionLocation = gl.getAttribLocation(program, "pos");
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -59,6 +65,7 @@ requestAnimationFrame(render);
 function render() {
     const time = (Date.now() - start) / 1000;
     gl.uniform1f(uT, time);
+    gl.uniform1f(uScale, 15);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.POINTS, 0, positions.length / 2);
     requestAnimationFrame(render);
