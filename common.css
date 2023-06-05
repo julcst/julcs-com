@@ -29,9 +29,9 @@ html {
 main {
   font-size: 1em;
   position: fixed;
-  top: 2vmax;
-  left: 2vmax;
-  right: 2vmax;
+  top: 4vmin;
+  left: 4vmin;
+  right: 4vmin;
   padding: 1em;
   border: 0.1em solid;
   box-shadow: 0.3em 0.3em;
@@ -60,9 +60,7 @@ body {
 
 @media (min-aspect-ratio: 1/1) {
   main {
-    font-size: 1.5em;
-    left: 2vmax;
-    right: 2vmax;
+    font-size: 1.3em;
     width: 30ex;
   }
 }
