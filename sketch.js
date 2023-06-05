@@ -15,7 +15,7 @@ gl.shaderSource(vertexShader, `
     attribute vec2 pos;
     uniform float scale;
     uniform float t;
-    float slerp(float x) {
+    float smooth(float x) {
         float t = clamp(x, 0.0, 1.0);
         return t * t * (3.0 - 2.0 * t);
     }
@@ -26,7 +26,7 @@ gl.shaderSource(vertexShader, `
         vec2 b = vec2(sin(x * 0.5) * 0.5 + sin(x * 0.4) * 0.5, sin(x * 0.2) * 0.5 + sin(x * 0.9) * 0.5);
         vec2 p = mix(a, b, pos.y);
         gl_PointSize = mix(0.05, 1.0, pos.y * pos.x) * scale;
-        gl_Position = vec4(mix(grid, p, slerp((t - 2.0) / 7.0)), 0, 1);
+        gl_Position = vec4(mix(grid, p, smooth((t - 2.0) / 7.0)), 0, 1);
     }`);
 gl.compileShader(vertexShader);
 if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
@@ -35,11 +35,12 @@ if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
 const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 gl.shaderSource(fragmentShader, `
     precision mediump float;
+    uniform vec4 color;
     void main() {
         vec2 cxy = (gl_PointCoord - 0.5) * 2.0;
         float r = dot(cxy, cxy);
         if (r > 1.0) discard;
-        gl_FragColor = vec4(0, 0, 0, 1);
+        gl_FragColor = color;
     }`);
 gl.compileShader(fragmentShader);
 if(!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
@@ -54,6 +55,7 @@ gl.useProgram(program);
 // Bind unifoms
 const uT = gl.getUniformLocation(program, "t");
 const uScale = gl.getUniformLocation(program, "scale");
+const uColor = gl.getUniformLocation(program, "color");
 
 // Configuration
 const s = 20;
@@ -76,6 +78,7 @@ gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
 // Render loop
 gl.uniform1f(uScale, s);
+gl.uniform4f(uColor, 0.0, 0.0, 0.0, 1.0);
 const start = Date.now();
 requestAnimationFrame(render);
 function render() {

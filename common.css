@@ -27,9 +27,11 @@ html {
 }
 
 main {
+  font-size: 1em;
   position: fixed;
-  margin: 2vmax;
-  width: 30ex;
+  top: 2vmax;
+  left: 2vmax;
+  right: 2vmax;
   padding: 1em;
   border: 0.1em solid;
   box-shadow: 0.3em 0.3em;
@@ -54,4 +56,20 @@ body {
 
 @keyframes blink {
   50% { opacity: 0; }
+}
+
+@media (min-aspect-ratio: 1/1) {
+  main {
+    font-size: 1.5em;
+    left: 2vmax;
+    right: 2vmax;
+    width: 30ex;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: hsl(0, 0%, 95%);
+    --color-front: hsl(0, 0%, 5%);
+  }
 }
