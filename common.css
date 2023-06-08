@@ -1,13 +1,13 @@
 @font-face {
-  font-family: JetBrainsMono, monospace;
-  src: url(fonts/JetBrainsMono-Regular.woff2);
+  font-family: "JetBrainsMono";
+  src: url(/fonts/JetBrainsMono-Regular.woff2);
   font-weight: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: JetBrainsMono, monospace;
-  src: url(fonts/JetBrainsMono-Bold.woff2);
+  font-family: "JetBrainsMono";
+  src: url(/fonts/JetBrainsMono-Bold.woff2);
   font-weight: bold;
   font-display: swap;
 }
@@ -22,12 +22,12 @@ html {
   margin: 0;
   background-color: var(--color-bg);
   color: var(--color-front);
-  font-family: JetBrainsMono, monospace;
+  font-family: "JetBrainsMono", monospace;
+  font-size: 0.90em;
   overflow: hidden;
 }
 
 main {
-  font-size: 1em;
   position: fixed;
   top: 4vmin;
   left: 4vmin;
@@ -68,9 +68,12 @@ body {
   50% { opacity: 0; }
 }
 
+/* Desktop configuration */
 @media (min-aspect-ratio: 1/1) {
-  main {
+  html {
     font-size: 1.3em;
+  }
+  main {
     width: 30ex;
   }
 }
@@ -81,6 +84,7 @@ body {
   }
 }
 
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-bg: hsl(0, 0%, 95%);
