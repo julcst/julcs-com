@@ -38,6 +38,12 @@ main {
   background-color: var(--color-bg);
 }
 
+a {
+  color: inherit;
+  font-weight: bold;
+  text-decoration: none;
+}
+
 #sketch {
   position: fixed;
   z-index: -1;
@@ -48,6 +54,10 @@ main {
 body {
   margin: 0;
   height: 100%;
+}
+
+.typed {
+  white-space: pre-line;
 }
 
 .cursor {
@@ -62,6 +72,12 @@ body {
   main {
     font-size: 1.3em;
     width: 30ex;
+  }
+}
+
+@media (hover: hover) {
+  a:hover {
+    text-decoration: underline;
   }
 }
 
