@@ -10,3 +10,4 @@ My personal website
 - maybe change "go back" to "go home"
 - search engine optimization
 - resize canvas
+- fix smartphone landscape mode

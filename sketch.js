@@ -1,7 +1,11 @@
 // Render 2d point grid with mxn points in WEBGL
 const canvas = document.getElementById("sketch");
-canvas.width = 2 * document.documentElement.clientWidth;
-canvas.height = 2 * document.documentElement.clientHeight;
+function resizeCanvas() {
+    canvas.width = 2 * document.documentElement.clientWidth;
+    canvas.height = 2 * document.documentElement.clientHeight;
+}
+resizeCanvas();
+// window.addEventListener("resize", resizeCanvas);
 const gl = canvas.getContext("webgl2", {
     alpha: true,
     antialias: true,

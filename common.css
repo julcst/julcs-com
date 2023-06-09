@@ -25,6 +25,7 @@ html {
   font-family: "JetBrainsMono", monospace;
   font-size: 0.90em;
   overflow: hidden;
+  text-size-adjust: none;
 }
 
 main {
@@ -69,7 +70,7 @@ body {
 }
 
 /* Desktop configuration */
-@media (min-aspect-ratio: 1/1) {
+@media (orientation: landscape) {
   html {
     font-size: 1.3em;
   }
