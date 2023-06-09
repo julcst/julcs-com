@@ -25,7 +25,8 @@ html {
   font-family: "JetBrainsMono", monospace;
   font-size: 0.90em;
   overflow: hidden;
-  text-size-adjust: none;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 main {
