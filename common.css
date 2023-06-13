@@ -31,13 +31,19 @@ html {
 
 main {
   position: fixed;
-  top: 4vmin;
-  left: 4vmin;
-  right: 4vmin;
+  top: 1em;
+  left: 1em;
+  right: 1em;
   padding: 1em;
   border: 0.1em solid;
   box-shadow: 0.3em 0.3em;
   background-color: var(--color-bg);
+}
+
+h1 {
+  display: inline;
+  font-size: inherit;
+  font-weight: normal;
 }
 
 a {
@@ -58,6 +64,14 @@ body {
   height: 100%;
 }
 
+footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 0.5em;
+  font-size: 0.8em;
+}
+
 .typed {
   white-space: pre-line;
 }
@@ -73,7 +87,7 @@ body {
 /* Desktop configuration */
 @media (orientation: landscape) {
   html {
-    font-size: 1.3em;
+    font-size: 1em;
   }
   main {
     width: 30ex;
@@ -89,7 +103,7 @@ body {
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg: hsl(0, 0%, 95%);
-    --color-front: hsl(0, 0%, 5%);
+    --color-bg: hsl(0, 0%, 5%);
+    --color-front: hsl(0, 0%, 95%);
   }
 }
