@@ -1,6 +1,5 @@
 // Register type effect
 Array.from(document.getElementsByClassName("typed")).forEach(typeEffect);
-console.log(getComputedStyle(document.documentElement).getPropertyValue('--color-bg'))
 function typeEffect(node) {
     startTypeEffect(0, 30, node);
 }
