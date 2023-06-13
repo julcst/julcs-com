@@ -35,14 +35,16 @@ gl.shaderSource(vertexShader, `
     uniform float scale;
     uniform float offset;
     uniform float t;
+    varying float weight;
     void main() {
         vec2 grid = (pos - 0.5) * 2.0;
         float x = offset + t + pos.x * 10.0;
         vec2 a = vec2(sin(x * 0.3) * 0.5 + sin(x * 0.8) * 0.5, sin(x * 0.7) * 0.5 + sin(x * 0.1) * 0.5);
         vec2 b = vec2(sin(x * 0.5) * 0.5 + sin(x * 0.4) * 0.5, sin(x * 0.2) * 0.5 + sin(x * 0.9) * 0.5);
         vec2 p = mix(a, b, pos.y);
-        gl_PointSize = mix(1.0, scale, pos.y * pos.x);
+        gl_PointSize = mix(3.0, scale, pos.y * pos.x);
         gl_Position = vec4(mix(grid, p, smoothstep(3.0, 10.0, t)), 0.0, 1.0);
+        weight = clamp(mix(0.1, 5.0, pos.y * pos.x), 0.0, 1.0);
     }`);
 gl.compileShader(vertexShader);
 if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
@@ -58,13 +60,15 @@ gl.shaderSource(fragmentShader, `
     precision mediump float;
     uniform vec4 color;
     uniform vec2 res;
+    varying float weight;
     void main() {
         vec2 cxy = (gl_PointCoord - 0.5) * 2.0;
         float r = dot(cxy, cxy);
     #ifdef GL_OES_standard_derivatives
         float delta = fwidth(r);
-        float alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);
-        gl_FragColor = vec4(color.rgb, color.a * alpha);
+        //if (r > 1.0 + delta) discard;
+        float alpha = smoothstep(1.0, 1.0 - delta, r);
+        gl_FragColor = vec4(color.rgb * weight, color.a * alpha);
         gl_FragColor.rgb *= gl_FragColor.a;
     #else
         if (r > 1.0) discard;
