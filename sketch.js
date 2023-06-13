@@ -87,9 +87,9 @@ const positionLocation = gl.getAttribLocation(program, "pos");
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 const positions = [];
-for (let i = 0; i < m; i++) {
-    for (let j = 0; j < n; j++) {
-        positions.push(i / m, j / n);
+for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+        positions.push(i / (m+1), j / (n+1));
     }
 }
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
