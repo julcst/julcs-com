@@ -43,8 +43,8 @@ gl.shaderSource(vertexShader, `
         vec2 b = vec2(sin(x * 0.5) * 0.5 + sin(x * 0.4) * 0.5, sin(x * 0.2) * 0.5 + sin(x * 0.9) * 0.5);
         vec2 p = mix(a, b, pos.y);
         gl_PointSize = mix(3.0, scale, pos.y * pos.x);
+        weight = clamp(mix(0.1, scale, pos.y * pos.x), 0.0, 1.0);
         gl_Position = vec4(mix(grid, p, smoothstep(3.0, 10.0, t)), 0.0, 1.0);
-        weight = clamp(mix(0.1, 5.0, pos.y * pos.x), 0.0, 1.0);
     }`);
 gl.compileShader(vertexShader);
 if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
@@ -91,9 +91,9 @@ const positionLocation = gl.getAttribLocation(program, "pos");
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 const positions = [];
-for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-        positions.push(i / (m+1), j / (n+1));
+for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+        positions.push(i / (m-1), j / (n-1));
     }
 }
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
