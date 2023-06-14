@@ -1,5 +1,5 @@
 // Configuration
-const s = 10;
+let s = 10;
 const m = 115;
 const n = 67;
 
@@ -15,6 +15,11 @@ const gl = canvas.getContext("webgl", {
 function resizeCanvas() {
     canvas.width = window.devicePixelRatio * document.documentElement.clientWidth;
     canvas.height = window.devicePixelRatio * document.documentElement.clientHeight;
+    if (canvas.height > canvas.width) {
+        s = Math.min(canvas.width / n, canvas.height / m)
+    } else {
+        s = Math.min(canvas.width / m, canvas.height / n)
+    }
     gl.viewport(0, 0, canvas.width, canvas.height);
 }
 resizeCanvas();
@@ -29,8 +34,9 @@ gl.shaderSource(vertexShader, `
     uniform float scale;
     uniform float offset;
     uniform float t;
+    uniform bool gridFlip;
     void main() {
-        vec2 grid = (pos - 0.5) * 2.0;
+        vec2 grid = ((gridFlip ? pos.yx : pos.xy) - 0.5) * 2.0;
         float x = offset + t + pos.x * 10.0;
         vec2 a = vec2(sin(x * 0.3) * 0.5 + sin(x * 0.8) * 0.5, sin(x * 0.7) * 0.5 + sin(x * 0.1) * 0.5);
         vec2 b = vec2(sin(x * 0.5) * 0.5 + sin(x * 0.4) * 0.5, sin(x * 0.2) * 0.5 + sin(x * 0.9) * 0.5);
@@ -86,12 +92,13 @@ const uT = gl.getUniformLocation(program, "t");
 const uScale = gl.getUniformLocation(program, "scale");
 const uColor = gl.getUniformLocation(program, "color");
 const uRes = gl.getUniformLocation(program, "res");
+const uGridFlip = gl.getUniformLocation(program, "gridFlip");
 
 // Set uniforms
 // Make the animation dependent on the time of day
 const start = Date.now() / 1000;
 gl.uniform1f(uOffset, start % 86400 - 43200);
-gl.uniform1f(uScale, s * window.devicePixelRatio);
+gl.uniform1i(uGridFlip, canvas.height > canvas.width);
 
 // Render loop
 requestAnimationFrame(render);
@@ -102,9 +109,10 @@ function render() {
     } else {
         gl.uniform4f(uColor, 0.0, 0.0, 0.0, 1.0);
     }
-    gl.uniform2f(uRes, canvas.width, canvas.height);
     const time = (Date.now() / 1000 - start);
     gl.uniform1f(uT, time);
+    gl.uniform1f(uScale, s);
+    gl.uniform2f(uRes, canvas.width, canvas.height);
 
     // Render
     gl.clear(gl.COLOR_BUFFER_BIT);
