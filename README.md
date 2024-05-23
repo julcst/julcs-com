@@ -1,4 +1,4 @@
-# julcs.de
+# julcs.com
 My personal website
 ## TODO:
 - multi language
