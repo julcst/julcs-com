@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Black and White Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #canvas {
+            border: 1px solid black;
+            margin-top: 10px;
+            max-width: 100%;
+            max-height: 80vh;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image to Black and White Converter</h1>
+    <input type="file" id="upload" accept="image/*">
+    <div id="controls">
+        <label for="threshold">Threshold: </label>
+        <input type="range" id="threshold" min="0" max="255" value="128">
+        <button id="download" disabled>Download Image</button>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        document.getElementById('upload').addEventListener('change', handleImageUpload);
+        document.getElementById('threshold').addEventListener('input', applyThreshold);
+        document.getElementById('download').addEventListener('click', downloadImage);
+
+        let originalImage = null;
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                loadImage(e.target.result);
+            }
+
+            reader.readAsDataURL(file);
+        }
+
+        function loadImage(src) {
+            const img = new Image();
+            img.crossOrigin = "Anonymous"; // Handle CORS
+            img.onload = function() {
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                originalImage = ctx.getImageData(0, 0, img.width, img.height);
+                applyThreshold();
+                document.getElementById('download').disabled = false;
+            }
+            img.src = src;
+        }
+
+        function applyThreshold() {
+            if (!originalImage) return;
+
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const threshold = document.getElementById('threshold').value;
+            const imageData = new ImageData(originalImage.width, originalImage.height);
+
+            for (let i = 0; i < originalImage.data.length; i += 4) {
+                const r = originalImage.data[i];
+                const g = originalImage.data[i + 1];
+                const b = originalImage.data[i + 2];
+                const avg = (r + g + b) / 3;
+                const value = avg >= threshold ? 255 : 0;
+
+                imageData.data[i] = value;
+                imageData.data[i + 1] = value;
+                imageData.data[i + 2] = value;
+                imageData.data[i + 3] = 255;  // Alpha channel remains opaque
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function downloadImage() {
+            const canvas = document.getElementById('canvas');
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'converted-image.png';
+            link.click();
+        }
+    </script>
+</body>
+</html>
