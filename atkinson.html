@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset=utf-8>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Julian C. Stamm">
+    <meta name="description" content="Hardware accelerated WebGL2 image black-white converter using luminance-preserving grayscale and a 9x9 gaussian blur">
+    <link rel="preload" as="font" href="/fonts/JetBrainsMono-Regular.woff2" crossorigin="anonymous">
+    <link rel="preload" as="font" href="/fonts/JetBrainsMono-Bold.woff2" crossorigin="anonymous">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="stylesheet" href="/common.css">
+    <title>Atkinson Converter</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #canvas {
+            image-rendering: high-quality;
+            margin-top: 10px;
+            width: 80%;
+            height: 80%;
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Atkinson Converter</h1>
+    <input type="file" id="upload" accept="image/*">
+    <div id="controls">
+        <label><input type="checkbox" id="colorCheckbox" checked> Colored</label>
+        <label><input type="range" id="scale" min=0.1 max=1.5 step=0.1 value=1> Scale</label>
+        <button id="download" disabled>Download Image</button>
+        <button id="downloadSVG" disabled>Download SVG</button>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+    let ctx, originalImageData, imageData, img;
+
+    function sRGBToLinear(x) {
+        return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+    }
+
+    function linearToSRGB(x) {
+        return x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+    }
+
+    function sRGBToLuminance(r, g, b) {
+        return linearToSRGB(0.2126 * sRGBToLinear(r) + 0.7152 * sRGBToLinear(g) + 0.0722 * sRGBToLinear(b));
+    }
+
+    function loadImage(src) {
+        img = new Image();
+
+        img.onload = function() {
+            processImage();
+        }
+
+        img.src = src;
+    }
+
+    function processImage() {
+        const canvas = document.getElementById('canvas');
+        const scale = document.getElementById('scale').value;
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+
+        ctx = canvas.getContext('2d', { colorSpace: "srgb" });
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height, { colorSpace: "srgb" });
+
+        applyAtkinson();
+        document.getElementById('download').disabled = false;
+        document.getElementById('downloadSVG').disabled = false;
+    }
+
+    function applyAtkinson() {
+        const color = document.getElementById('colorCheckbox').checked;
+        imageData = atkinsonDithering(originalImageData, color);
+        ctx.putImageData(imageData, 0, 0);
+    }
+
+    function atkinsonDithering(originalImageData, color = true) {
+        let imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height);
+        const width = imageData.width;
+        const height = imageData.height;
+        const data = imageData.data;
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const index = (y * width + x) * 4;
+
+                // Convert pixel color to linear space if checkbox is checked
+                let r = data[index + 0];
+                let g = data[index + 1];
+                let b = data[index + 2];
+
+                if (!color) {
+                    r = g = b = Math.round(255 * sRGBToLuminance(r / 255, g / 255, b / 255));
+                }
+
+                // Quantize colors
+                const newR = r >= 128 ? 255 : 0;
+                const newG = g >= 128 ? 255 : 0;
+                const newB = b >= 128? 255 : 0;
+
+                data[index + 0] = newR;
+                data[index + 1] = newG;
+                data[index + 2] = newB;
+
+                // Calculate quantization error
+                const errR = r - newR;
+                const errG = g - newG;
+                const errB = b - newB;
+
+                // Distribute error to neighboring pixels
+                const distributeError = (x, y, factor) => {
+                    const neighborIndex = (y * width + x) * 4;
+                    data[neighborIndex + 0] = Math.min(255, Math.max(0, Math.round((data[neighborIndex + 0] + errR * factor))));
+                    data[neighborIndex + 1] = Math.min(255, Math.max(0, Math.round((data[neighborIndex + 1] + errG * factor))));
+                    data[neighborIndex + 2] = Math.min(255, Math.max(0, Math.round((data[neighborIndex + 2] + errB * factor))));
+                };
+
+                distributeError(x + 1, y, 1 / 8);
+                distributeError(x + 2, y, 1 / 8);
+                distributeError(x - 1, y + 1, 1 / 8);
+                distributeError(x, y + 1, 1 / 8);
+                distributeError(x + 1, y + 1, 1 / 8);
+                distributeError(x, y + 2, 1 / 8);
+            }
+        }
+
+        return imageData;
+    }
+
+    function createSVGFromImageData(imageData) {
+        // Create an SVG element
+        let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        
+        // Set SVG width and height to match image data
+        svg.setAttribute("width", imageData.width);
+        svg.setAttribute("height", imageData.height);
+        let background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        svg.appendChild(background);
+        background.setAttribute("width", "100%");
+        background.setAttribute("height", "100%");
+        background.setAttribute("fill", "black");
+
+        const data = imageData.data;
+        // Loop through each pixel in the image data
+        for (let y = 0; y < imageData.height; y++) {
+            for (let x = 0; x < imageData.width; x++) {
+                // Get the index of the pixel in the image data array
+                let index = (y * imageData.width + x) * 4;
+
+                const r = data[index + 0];
+                const g = data[index + 1];
+                const b = data[index + 2];
+
+                // Check if the pixel is white
+                if (r > 0 || g > 0 || b > 0) {
+                    // Create a circle element for the white pixel
+                    let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    circle.setAttribute("cx", x);
+                    circle.setAttribute("cy", y);
+                    circle.setAttribute("r", 0.5); // Radius of circle
+                    circle.setAttribute("fill", `rgb(${r}, ${g}, ${b})`);
+                    
+                    // Append the circle to the SVG
+                    svg.appendChild(circle);
+                }
+            }
+        }
+        
+        return svg;
+    }
+
+    // Function to download SVG
+    function downloadSVG() {
+        let svgElement = createSVGFromImageData(imageData);
+        // Serialize the SVG to XML
+        let svgData = new XMLSerializer().serializeToString(svgElement);
+        
+        // Create a blob from the SVG data
+        let blob = new Blob([svgData], { type: "image/svg+xml" });
+        
+        // Create a download link
+        let link = document.createElement("a");
+        link.download = "atkinson.svg";
+        link.href = URL.createObjectURL(blob);
+        link.click();
+    }
+
+    function handleImageUpload(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            loadImage(e.target.result);
+        }
+
+        reader.readAsDataURL(file);
+    }
+
+    function downloadImage() {
+        const canvas = document.getElementById('canvas');
+        const link = document.createElement('a');
+        link.download = 'atkinson.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+
+    function init() {
+        document.getElementById('upload').addEventListener('change', handleImageUpload);
+        document.getElementById('download').addEventListener('click', downloadImage);
+        document.getElementById('downloadSVG').addEventListener('click', downloadSVG);
+        document.getElementById('scale').addEventListener('input', processImage);
+        document.getElementById('colorCheckbox').addEventListener('change', applyAtkinson);
+    }
+
+    init();
+    </script>
+</body>
+</html>
