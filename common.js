@@ -1,7 +1,7 @@
 // Register type effect
 Array.from(document.getElementsByClassName("typed")).forEach(typeEffect);
 function typeEffect(node) {
-    startTypeEffect(0, 30, node);
+    startTypeEffect(0, 10, node);
 }
 
 // Start type effect for every text childNode of the node

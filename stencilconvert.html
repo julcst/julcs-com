@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset=utf-8>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Julian C. Stamm">
-    <meta name="description" content="Hardware accelerated WebGL2 image black-white converter using luminance-preserving grayscale and a 9x9 gaussian blur">
-    <link rel="preload" as="font" href="/fonts/JetBrainsMono-Regular.woff2" crossorigin="anonymous">
-    <link rel="preload" as="font" href="/fonts/JetBrainsMono-Bold.woff2" crossorigin="anonymous">
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="stylesheet" href="/common.css">
+    <meta name="description"
+        content="Hardware accelerated WebGL2 image black-white converter using luminance-preserving grayscale and a 9x9 gaussian blur">
+    <link rel="preload" as="font" href="fonts/JetBrainsMono-Regular.woff2" crossorigin="anonymous">
+    <link rel="preload" as="font" href="fonts/JetBrainsMono-Bold.woff2" crossorigin="anonymous">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="common.css">
     <title>Stencil Converter</title>
     <style>
         body {
@@ -22,17 +24,20 @@
             margin: 0;
             overflow: hidden;
         }
+
         #canvas {
             border: 1px solid black;
             margin-top: 10px;
             max-width: 100%;
             max-height: 80vh;
         }
+
         #controls {
             margin-top: 20px;
         }
     </style>
 </head>
+
 <body>
     <h1>Stencil Converter</h1>
     <input type="file" id="upload" accept="image/*">
@@ -45,7 +50,7 @@
     </div>
     <canvas id="canvas"></canvas>
     <script>
-        const vertexShaderSrc = 
+        const vertexShaderSrc =
             `#version 300 es
             in vec2 aPosition;
             out vec2 vTexCoord;
@@ -55,7 +60,7 @@
                 vTexCoord.y = 1.0 - vTexCoord.y;
             }`;
 
-        const fragmentShaderSrc = 
+        const fragmentShaderSrc =
             `#version 300 es
             precision mediump float;
             in vec2 vTexCoord;
@@ -151,8 +156,8 @@
             gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
                 -1, -1,
-                 3, -1,
-                -1,  3,
+                3, -1,
+                -1, 3,
             ]), gl.STATIC_DRAW);
 
             gl.useProgram(program);
@@ -180,7 +185,7 @@
         function loadImage(src) {
             const img = new Image();
 
-            img.onload = function() {
+            img.onload = function () {
                 const canvas = document.getElementById('canvas');
                 canvas.width = img.width;
                 canvas.height = img.height;
@@ -212,7 +217,7 @@
             const file = event.target.files[0];
             const reader = new FileReader();
 
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 loadImage(e.target.result);
             }
 
@@ -244,4 +249,5 @@
         init();
     </script>
 </body>
+
 </html>

@@ -62,7 +62,7 @@ gl.shaderSource(fragmentShader, `
         gl_FragColor = vec4(color.rgba);
     }`);
 gl.compileShader(fragmentShader);
-if(!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
     console.error(gl.getShaderInfoLog(fragmentShader));
 }
 // Combine
@@ -79,7 +79,7 @@ gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 const positions = [];
 for (let i = 0; i < m; i++) {
     for (let j = 0; j < n; j++) {
-        positions.push(i / (m-1), j / (n-1));
+        positions.push(i / (m - 1), j / (n - 1));
     }
 }
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
