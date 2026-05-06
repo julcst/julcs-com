@@ -1,0 +1,50 @@
+name: Render CV
+
+on:
+  push:
+    paths:
+      - 'cv.yaml'
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Render CV
+        run: |
+          uvx rendercv render cv.yaml
+          # RenderCV creates a folder named 'rendercv_output'
+          # We need to find the generated .md and .pdf files
+          mkdir -p public/
+          mkdir -p src/content/pages/
+          cp rendercv_output/Julian_Stamm_CV.pdf public/cv.pdf
+          
+          # Process Markdown to add your terminal bullets (> )
+          # We take the content, excluding the header (first few lines)
+          # then prepend > to every list item
+          echo "---" > src/content/pages/cv.md
+          echo "title: \"CV | Julian Stamm\"" >> src/content/pages/cv.md
+          echo "description: \"Curriculum Vitae of Julian Stamm.\"" >> src/content/pages/cv.md
+          echo "---" >> src/content/pages/cv.md
+          echo "" >> src/content/pages/cv.md
+          echo "[> Download PDF Version](/cv.pdf)" >> src/content/pages/cv.md
+          echo "" >> src/content/pages/cv.md
+          
+          # Prepend '> ' to list items in the generated markdown
+          sed 's/^[[:space:]]*- /> /g' rendercv_output/Julian_Stamm_CV.md >> src/content/pages/cv.md
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add public/cv.pdf src/content/pages/cv.md
+          git commit -m "docs: auto-render CV from yaml" || echo "No changes to commit"
+          git push

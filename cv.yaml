@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/rendercv/rendercv/main/schema.json
+
+cv:
+  name: Julian Stamm
+  location: Bonn, Germany
+  email: mail@julcs.de
+  website: https://julcs.de
+  social_networks:
+    - network: GitHub
+      username: julianstamm
+  
+  sections:
+    education:
+      - institution: University of Bonn
+        area: Computer Science
+        degree: B.Sc.
+        start_date: 2023-09
+        end_date: present
+        highlights:
+          - "Special interest in Computer Graphics and Generative Design"
+
+    skills:
+      - label: Languages
+        details: Python, C++, JavaScript, TypeScript, GLSL
+      - label: Technologies
+        details: WebGL, OpenGL, Astro, React
+      - label: Creative
+        details: Generative Art, Procedural Modeling
+
+    projects:
+      - name: Personal Website & Portfolio
+        date: 2026-05
+        highlights:
+          - "Built with Astro and TypeScript"
+          - "Features a high-performance WebGL background and custom terminal typewriter animation"
+          - "Automated CV generation and SEO optimization"
+
+design:
+  theme: classic
+  font: Latin Modern Serif
+  font_size: 10pt
+  page_size: a4paper
+  margins:
+    page:
+      top: 2cm
+      bottom: 2cm
+      left: 2cm
+      right: 2cm
