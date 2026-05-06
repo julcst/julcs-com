@@ -1,0 +1,29 @@
+---
+const rawContent = await Astro.slots.render("default");
+
+// 1. Remove any HTML tags MDX might have added (like <p>)
+const plainText = rawContent.replace(/<[^>]*>?/gm, "").trim();
+
+// 2. Process line by line so the order of the address stays correct
+const obfuscatedLines = plainText.split("\n").map((line) => {
+    return line.trim().split("").reverse().join("");
+});
+---
+
+<div class="obfuscate-container" aria-label={plainText}>
+    {obfuscatedLines.map((line) => <span class="obfuscate-line">{line}</span>)}
+</div>
+
+<style>
+    .obfuscate-container {
+        display: flex;
+        flex-direction: column;
+        cursor: text;
+    }
+    .obfuscate-line {
+        unicode-bidi: bidi-override;
+        direction: rtl;
+        text-align: left;
+        display: block;
+    }
+</style>

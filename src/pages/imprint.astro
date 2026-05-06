@@ -1,0 +1,20 @@
+---
+import { getEntry, render } from "astro:content";
+import TerminalLayout from "../layouts/TerminalLayout.astro";
+import Obfuscate from "../components/Obfuscate.astro";
+
+const entry = await getEntry("pages", "imprint");
+if (!entry) throw new Error("Could not find imprint content");
+
+const { Content } = await render(entry);
+---
+
+<meta name="robots" content="noindex, nofollow" />
+
+<TerminalLayout title={entry.data.title} description={entry.data.description}>
+    <div class="imprint-content">
+        <Content />
+        <br />
+        <p><a href="/">&gt; Back to home</a></p>
+    </div>
+</TerminalLayout>

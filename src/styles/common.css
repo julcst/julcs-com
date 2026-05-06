@@ -16,7 +16,18 @@ html {
 }
 
 h1 {
-  display: inline;
+  font-size: inherit;
+  font-weight: normal;
+  text-decoration: underline dotted;
+}
+
+h2 {
+  font-size: inherit;
+  font-weight: normal;
+  text-decoration: underline dotted;
+}
+
+h3 {
   font-size: inherit;
   font-weight: normal;
   text-decoration: underline dotted;
