@@ -1,15 +1,12 @@
 ---
 title: "Julian Stamm | Computer Science Student & Generative Designer"
-description: "Portfolio of Julian Stamm, a computer science student at the University of Bonn specializing in computer graphics, WebGL, and generative design."
+description: "Portfolio of Julian Stamm, computer science master student at the University of Bonn specializing in computer graphics."
 ---
 
-# julcs website
+# julian stamm
 
-My name is Julian and I am a computer science student at the University of Bonn with special interest in:
+master student of computer science at the university of bonn, germany.
 
-- \> Computer Graphics
-- \> Generative Design
-- \> High-performance WebGL
+specializing in computer graphics, neural rendering and real-time gi.
 
-[> Check out my work here](/gallery)  
-[> Contact me](mailto:mail@julcs.de)
+[> contact me](mailto:mail@julcs.de)
