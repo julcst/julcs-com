@@ -7,8 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/generate-icons.js && astro build",
-    "generate-icons": "node scripts/generate-icons.js",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -16,6 +15,7 @@
     "@astrojs/sitemap": "^3.7.2",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "astro": "^6.2.2",
+    "astro-favicons": "^3.1.6",
     "sharp": "^0.34.5"
   }
 }
