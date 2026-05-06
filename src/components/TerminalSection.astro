@@ -7,16 +7,37 @@ interface Props {
 
 const { id, class: className, isIntro = false } = Astro.props;
 ---
-<section id={id} class:list={[
-    "terminal-box", 
-    className, 
-    { "intro-box": isIntro, "content-box": !isIntro }
-]}>
+
+<section
+    id={id}
+    class:list={[
+        "terminal-box",
+        className,
+        { "intro-box": isIntro, "content-box": !isIntro },
+    ]}
+>
+    {
+        isIntro && (
+            <nav class="header-nav">
+                <span class="site-title">julcs.com</span>
+                <div class="nav-links">
+                    <a href="#cv" data-nav="cv" class="nav-btn">
+                        cv
+                    </a>
+                    <a href="#projects" data-nav="projects" class="nav-btn">
+                        projects
+                    </a>
+                    <a href="#tools" data-nav="tools" class="nav-btn">
+                        tools
+                    </a>
+                </div>
+            </nav>
+        )
+    }
     <div class="terminal-frame">
         <span class="typed">
             <slot />
         </span>
-        <span class="cursor">_</span>
     </div>
 </section>
 
@@ -26,7 +47,8 @@ const { id, class: className, isIntro = false } = Astro.props;
         border: 0.1em solid;
         box-shadow: 0.3em 0.3em;
         background-color: var(--color-bg);
-        transition: all 0.3s ease-in-out;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
     }
 
     .intro-box {
@@ -36,6 +58,41 @@ const { id, class: className, isIntro = false } = Astro.props;
         width: calc(100% - 2em);
         max-width: 30ex;
         z-index: 100;
+    }
+
+    .header-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 0;
+        opacity: 0;
+        max-height: 0;
+        transition:
+            opacity 0.4s ease,
+            max-height 0.4s ease,
+            margin 0.4s ease;
+        pointer-events: none;
+    }
+
+    .site-title {
+        font-weight: bold;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 1.5em;
+    }
+
+    .nav-links a {
+        text-transform: lowercase;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+
+    .nav-links a.active {
+        opacity: 1;
+        text-decoration: underline;
     }
 
     /* Collapse effect when scrolled */
@@ -48,81 +105,218 @@ const { id, class: className, isIntro = false } = Astro.props;
         border-left: none;
         border-right: none;
         box-shadow: none;
-        padding: 0.5em 1em;
+        padding: 0.8em 2em;
     }
 
-    /* Hide detailed bio in collapsed state, only keep the title */
+    :global(body.scrolled) .header-nav {
+        opacity: 1;
+        max-height: 2em;
+        margin-bottom: 0.5em;
+        pointer-events: auto;
+    }
+
+    /* Smoothly hide intro content when collapsed */
+    :global(body.scrolled) .intro-box :global(h1),
     :global(body.scrolled) .intro-box :global(p),
     :global(body.scrolled) .intro-box :global(ul) {
-        display: none;
+        opacity: 0;
+        max-height: 0;
+        margin: 0;
+        padding: 0;
+        pointer-events: none;
+        transition:
+            opacity 0.3s ease,
+            max-height 0.3s ease,
+            margin 0.3s ease;
+    }
+
+    /* Initial state for intro content (visible) */
+    .intro-box :global(h1),
+    .intro-box :global(p),
+    .intro-box :global(ul) {
+        opacity: 1;
+        max-height: 1000px;
+        transition:
+            opacity 0.5s ease,
+            max-height 0.5s ease,
+            margin 0.5s ease;
     }
 
     .content-box {
-        margin: 5em auto 10em;
-        width: calc(100% - 2em);
-        max-width: 80ch;
-        opacity: 1;
-        transition: opacity 0.5s ease;
+        margin: 2em auto;
+        width: 80%;
+        max-width: 1200px;
     }
 
     .terminal-frame {
         display: inline;
     }
 
-    .cursor {
-        animation: blink 0.7s infinite;
-    }
-
-    @keyframes blink {
-        50% { opacity: 0; }
-    }
-
-    @media (max-width: 600px) {
-        .intro-box {
-            max-width: none;
-            width: calc(100% - 2.6em);
+    @media (max-width: 800px) {
+        .content-box {
+            width: calc(100% - 2em);
+        }
+        .nav-links {
+            gap: 1em;
+        }
+        :global(body.scrolled) .intro-box {
+            padding: 0.8em 1em;
         }
     }
 </style>
 
 <script>
-    // Handle the "scrolled" state on the body
-    window.addEventListener('scroll', () => {
+    const globalCursor = document.getElementById("global-cursor");
+
+    // --- SCROLL & NAV LOGIC ---
+    const navLinks = document.querySelectorAll(".nav-links a");
+    const sections = document.querySelectorAll(".content-box");
+
+    window.addEventListener("scroll", () => {
         if (window.scrollY > 50) {
-            document.body.classList.add('scrolled');
+            document.body.classList.add("scrolled");
         } else {
-            document.body.classList.remove('scrolled');
+            document.body.classList.remove("scrolled");
         }
+
+        let current = "";
+        sections.forEach((section) => {
+            const sectionTop = (section as HTMLElement).offsetTop;
+            if (window.scrollY >= sectionTop - 150) {
+                current = section.getAttribute("id") || "";
+            }
+        });
+
+        navLinks.forEach((link) => {
+            link.classList.remove("active");
+            if (link.getAttribute("data-nav") === current) {
+                link.classList.add("active");
+            }
+        });
     });
 
-    // Re-trigger typewriter for dynamically loaded content
-    const typedElements = document.getElementsByClassName("typed");
-    Array.from(typedElements).forEach(node => typeEffect(node as HTMLElement));
+    // --- SEQUENTIAL TYPEWRITER LOGIC ---
+    const typedElements = Array.from(
+        document.getElementsByClassName("typed"),
+    ) as HTMLElement[];
+    let currentTypingIndex = 0;
+    let isTyping = false;
+    let cancelCurrentTyping = () => {};
 
-    function typeEffect(node: HTMLElement) {
-        if (node.dataset.initialized) return;
-        node.dataset.initialized = "true";
-        startTypeEffect(0, 10, node);
-    }
+    // Initialize all sections as hidden/ready
+    typedElements.forEach((el) => {
+        el.style.opacity = "0";
+    });
 
-    function startTypeEffect(t: number, typeSpeed: number, node: Node): number {
-        if (node.nodeType === Node.TEXT_NODE) {
-            let text = node.textContent || "";
-            if (text.trim().length === 0) return t;
-            
-            node.textContent = "";
-            for (let i = 0; i < text.length; i++) {
-                setTimeout(() => {
-                    node.textContent = text.slice(0, i + 1);
-                }, t + typeSpeed * i);
-            }
-            return t + typeSpeed * text.length;
-        } else {
-            let endT = t;
-            for (const child of Array.from(node.childNodes)) {
-                endT = startTypeEffect(endT, typeSpeed, child);
-            }
-            return endT;
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const node = entry.target as HTMLElement;
+                    node.dataset.visible = "true";
+                    tryStartNext();
+                }
+            });
+        },
+        { threshold: 0.1 },
+    );
+
+    typedElements.forEach((node) => observer.observe(node));
+
+    async function tryStartNext() {
+        if (isTyping) return;
+        if (currentTypingIndex >= typedElements.length) return;
+
+        const nextNode = typedElements[currentTypingIndex];
+
+        if (nextNode.dataset.visible === "true" || currentTypingIndex === 0) {
+            isTyping = true;
+            nextNode.style.opacity = "1";
+            await typeNode(nextNode);
+            isTyping = false;
+            currentTypingIndex++;
+            tryStartNext();
         }
     }
+
+    async function typeNode(rootNode: HTMLElement): Promise<void> {
+        return new Promise(async (resolve) => {
+            const textNodes: { node: Node; originalText: string }[] = [];
+            let isCancelled = false;
+            cancelCurrentTyping = () => {
+                isCancelled = true;
+                // Force show everything immediately
+                textNodes.forEach((item) => {
+                    item.node.textContent = item.originalText;
+                });
+                resolve();
+            };
+
+            function collectAndClear(node: Node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const text = node.textContent || "";
+                    if (text.trim().length > 0) {
+                        textNodes.push({ node, originalText: text });
+                    }
+                    node.textContent = "";
+                } else {
+                    Array.from(node.childNodes).forEach(collectAndClear);
+                }
+            }
+            collectAndClear(rootNode);
+
+            const typeSpeed = 10;
+            for (const item of textNodes) {
+                if (isCancelled) break;
+                for (let i = 0; i <= item.originalText.length; i++) {
+                    if (isCancelled) break;
+                    item.node.textContent = item.originalText.slice(0, i);
+                    if (globalCursor) {
+                        item.node.after(globalCursor);
+                    }
+                    await new Promise((r) => setTimeout(r, typeSpeed));
+                }
+            }
+            resolve();
+        });
+    }
+
+    // --- SKIP LOGIC ---
+    const navButtons = document.querySelectorAll(".nav-btn");
+    navButtons.forEach((btn) => {
+        btn.addEventListener("click", async (e) => {
+            const targetId = (btn as HTMLAnchorElement)
+                .getAttribute("href")
+                ?.substring(1);
+            if (!targetId) return;
+
+            // Find index of target section
+            const targetSection = document.getElementById(targetId);
+            if (!targetSection) return;
+            const targetTyped = targetSection.querySelector(
+                ".typed",
+            ) as HTMLElement;
+            const targetIndex = typedElements.indexOf(targetTyped);
+
+            // 1. Force complete everything up to target
+            while (currentTypingIndex < targetIndex) {
+                if (isTyping) {
+                    cancelCurrentTyping();
+                    // Wait a tiny bit for the current typing to actually stop and resolve
+                    await new Promise((r) => setTimeout(r, 20));
+                }
+
+                const node = typedElements[currentTypingIndex];
+                // Force full text if it hasn't been collected/cleared yet
+                node.style.opacity = "1";
+                node.dataset.initialized = "true";
+                currentTypingIndex++;
+            }
+
+            // 2. Start typing the target section immediately
+            tryStartNext();
+        });
+    });
+
+    tryStartNext();
 </script>

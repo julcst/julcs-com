@@ -25,7 +25,7 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFul
 <Layout title={intro.data.title} description={intro.data.description}>
     <BackgroundSketch />
     
-    <!-- Fixed Intro Box -->
+    <!-- Fixed Intro Box (Collapses to Header) -->
     <TerminalSection isIntro={true}>
         <IntroContent />
         <p>
@@ -38,15 +38,15 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFul
 
     <!-- Scrollable Content Area -->
     <div class="scroll-container">
-        <TerminalSection id="cv">
+        <TerminalSection id="cv" class="content-box">
             <CVContent />
         </TerminalSection>
 
-        <TerminalSection id="projects">
+        <TerminalSection id="projects" class="content-box">
             <ProjectsContent />
         </TerminalSection>
 
-        <TerminalSection id="tools">
+        <TerminalSection id="tools" class="content-box">
             <ToolsContent />
         </TerminalSection>
     </div>
@@ -56,8 +56,11 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFul
 
 <style>
     .scroll-container {
-        padding-top: 100vh; /* Push content down to show only intro initially */
-        padding-bottom: 5em;
+        padding-top: 100vh; /* Show only intro initially */
+        padding-bottom: 10vh;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem; /* Tighter spacing between sections */
     }
 
     /* Smooth scroll behavior */

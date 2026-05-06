@@ -23,5 +23,21 @@ const {
 	</head>
 	<body>
 		<slot />
+        <!-- Single Global Cursor -->
+        <span id="global-cursor" class="cursor">_</span>
 	</body>
 </html>
+
+<style is:global>
+    .cursor {
+        animation: blink 0.7s infinite;
+        font-weight: bold;
+        display: inline;
+        margin-left: 0.1em;
+        line-height: 1;
+    }
+
+    @keyframes blink {
+        50% { opacity: 0; }
+    }
+</style>

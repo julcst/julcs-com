@@ -9,4 +9,4 @@ master student of computer science at the university of bonn, germany.
 
 specializing in computer graphics, neural rendering and real-time gi.
 
-[> contact me](mailto:mail@julcs.de)
+[> contact me](mailto:mail@julcs.com)
