@@ -8,11 +8,10 @@ description: "Curriculum Vitae of Julian Stamm."
 ### Education
 
 **University of Bonn**  
-B.Sc. Computer Science (Expected 202X)  
-Focus: Computer Graphics, Generative Design
+B.Sc. Computer Science (2025)  
+Focus: Computer Graphics, Neural Rendering, Real-Time GI
 
 ### Skills
 
-- \> Languages: Python, C++, JavaScript/TypeScript, GLSL
-- \> Technologies: WebGL, OpenGL, Astro, React
-- \> Creative: Generative Art, Procedural Modeling
+- \> Languages: C++, Slang, Cuda, OptiX, Rust, Python
+- \> Tools: Bevy, Godot, Falcor

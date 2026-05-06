@@ -7,11 +7,7 @@ description: "Selected projects and publications by Julian Stamm."
 
 ### Selected Projects
 
-**Hardware Accelerated Image Processing**  
-A suite of WebGL-based tools for dithering, thresholding, and stenciling images.
-
-**Procedural Art Engine**  
-An exploration of mathematical curves and particle systems rendered in real-time.
+*No projects listed yet.*
 
 ### Publications
 
