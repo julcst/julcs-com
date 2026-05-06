@@ -20,7 +20,7 @@ jobs:
 
       - name: Render CV
         run: |
-          uvx rendercv render cv.yaml
+          uvx --with "rendercv[full]" rendercv render cv.yaml
           # RenderCV creates a folder named 'rendercv_output'
           # We need to find the generated .md and .pdf files
           mkdir -p public/
