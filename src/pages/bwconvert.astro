@@ -1,10 +1,14 @@
 ---
+import { getEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+
+const entry = await getEntry('tools', 'bwconvert');
+if (!entry) throw new Error('Could not find bwconvert content');
 ---
 
 <Layout 
-    title="Black and White Converter | High-Performance WebGL" 
-    description="Convert images to high-contrast black and white using hardware-accelerated WebGL2 and luminance-preserving grayscale algorithms."
+    title={entry.data.title} 
+    description={entry.data.description}
 >
     <style slot="head">
         body {
