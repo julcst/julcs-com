@@ -1,23 +1,67 @@
 ---
 import { getEntry, render } from 'astro:content';
-import TerminalLayout from '../layouts/TerminalLayout.astro';
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+import BackgroundSketch from '../components/BackgroundSketch.astro';
+import TerminalSection from '../components/TerminalSection.astro';
 
-const entry = await getEntry('pages', 'index');
-if (!entry) throw new Error('Could not find index content');
+// Fetch all entries
+const intro = await getEntry('pages', 'index');
+const cv = await getEntry('pages', 'cv');
+const projects = await getEntry('pages', 'projects');
+const tools = await getEntry('pages', 'tools');
 
-const { Content } = await render(entry);
+if (!intro || !cv || !projects || !tools) throw new Error('Could not find all content entries');
+
+const { Content: IntroContent } = await render(intro);
+const { Content: CVContent } = await render(cv);
+const { Content: ProjectsContent } = await render(projects);
+const { Content: ToolsContent } = await render(tools);
 
 const today = new Date();
-const month = String(today.getMonth() + 1).padStart(2, '0');
-const year = today.getFullYear();
-const dateStr = `${month}/${year}`;
+const dateStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
 ---
 
-<TerminalLayout 
-    title={entry.data.title} 
-    description={entry.data.description}
-    showFooter={true}
->
-    <Content />
-    <p>{dateStr} - julcs</p>
-</TerminalLayout>
+<Layout title={intro.data.title} description={intro.data.description}>
+    <BackgroundSketch />
+    
+    <!-- Fixed Intro Box -->
+    <TerminalSection isIntro={true}>
+        <IntroContent />
+        <p>
+            <a href="#cv">&gt; View CV</a><br/>
+            <a href="#projects">&gt; View Projects</a><br/>
+            <a href="#tools">&gt; View Tools</a>
+        </p>
+        <p>{dateStr} - julcs</p>
+    </TerminalSection>
+
+    <!-- Scrollable Content Area -->
+    <div class="scroll-container">
+        <TerminalSection id="cv">
+            <CVContent />
+        </TerminalSection>
+
+        <TerminalSection id="projects">
+            <ProjectsContent />
+        </TerminalSection>
+
+        <TerminalSection id="tools">
+            <ToolsContent />
+        </TerminalSection>
+    </div>
+
+    <Footer />
+</Layout>
+
+<style>
+    .scroll-container {
+        padding-top: 100vh; /* Push content down to show only intro initially */
+        padding-bottom: 5em;
+    }
+
+    /* Smooth scroll behavior */
+    :global(html) {
+        scroll-behavior: smooth;
+    }
+</style>

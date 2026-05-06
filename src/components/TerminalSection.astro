@@ -1,0 +1,128 @@
+---
+interface Props {
+    id?: string;
+    class?: string;
+    isIntro?: boolean;
+}
+
+const { id, class: className, isIntro = false } = Astro.props;
+---
+<section id={id} class:list={[
+    "terminal-box", 
+    className, 
+    { "intro-box": isIntro, "content-box": !isIntro }
+]}>
+    <div class="terminal-frame">
+        <span class="typed">
+            <slot />
+        </span>
+        <span class="cursor">_</span>
+    </div>
+</section>
+
+<style>
+    .terminal-box {
+        padding: 1em;
+        border: 0.1em solid;
+        box-shadow: 0.3em 0.3em;
+        background-color: var(--color-bg);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .intro-box {
+        position: fixed;
+        top: 1em;
+        left: 1em;
+        width: calc(100% - 2em);
+        max-width: 30ex;
+        z-index: 100;
+    }
+
+    /* Collapse effect when scrolled */
+    :global(body.scrolled) .intro-box {
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+        padding: 0.5em 1em;
+    }
+
+    /* Hide detailed bio in collapsed state, only keep the title */
+    :global(body.scrolled) .intro-box :global(p),
+    :global(body.scrolled) .intro-box :global(ul) {
+        display: none;
+    }
+
+    .content-box {
+        margin: 5em auto 10em;
+        width: calc(100% - 2em);
+        max-width: 80ch;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+    }
+
+    .terminal-frame {
+        display: inline;
+    }
+
+    .cursor {
+        animation: blink 0.7s infinite;
+    }
+
+    @keyframes blink {
+        50% { opacity: 0; }
+    }
+
+    @media (max-width: 600px) {
+        .intro-box {
+            max-width: none;
+            width: calc(100% - 2.6em);
+        }
+    }
+</style>
+
+<script>
+    // Handle the "scrolled" state on the body
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            document.body.classList.add('scrolled');
+        } else {
+            document.body.classList.remove('scrolled');
+        }
+    });
+
+    // Re-trigger typewriter for dynamically loaded content
+    const typedElements = document.getElementsByClassName("typed");
+    Array.from(typedElements).forEach(node => typeEffect(node as HTMLElement));
+
+    function typeEffect(node: HTMLElement) {
+        if (node.dataset.initialized) return;
+        node.dataset.initialized = "true";
+        startTypeEffect(0, 10, node);
+    }
+
+    function startTypeEffect(t: number, typeSpeed: number, node: Node): number {
+        if (node.nodeType === Node.TEXT_NODE) {
+            let text = node.textContent || "";
+            if (text.trim().length === 0) return t;
+            
+            node.textContent = "";
+            for (let i = 0; i < text.length; i++) {
+                setTimeout(() => {
+                    node.textContent = text.slice(0, i + 1);
+                }, t + typeSpeed * i);
+            }
+            return t + typeSpeed * text.length;
+        } else {
+            let endT = t;
+            for (const child of Array.from(node.childNodes)) {
+                endT = startTypeEffect(endT, typeSpeed, child);
+            }
+            return endT;
+        }
+    }
+</script>
