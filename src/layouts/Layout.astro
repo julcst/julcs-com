@@ -1,0 +1,34 @@
+---
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/700.css';
+import '../styles/common.css';
+import BaseHead from '../components/BaseHead.astro';
+
+interface Props {
+	title: string;
+	description?: string;
+	showBackground?: boolean;
+	showTypewriter?: boolean;
+}
+
+const { 
+	title, 
+	description = "Personal website of Julian Stamm", 
+	showBackground = false, 
+	showTypewriter = false 
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+		<slot name="head" />
+	</head>
+	<body>
+		<slot />
+		{showBackground && <canvas id="sketch" />}
+		{showBackground && <script is:inline src="/scripts/sketch.js"></script>}
+		{showTypewriter && <script is:inline src="/scripts/common.js"></script>}
+	</body>
+</html>

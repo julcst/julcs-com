@@ -1,0 +1,39 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+
+const today = new Date();
+const month = String(today.getMonth() + 1).padStart(2, '0');
+const year = today.getFullYear();
+const dateStr = `${month}/${year}`;
+---
+
+<Layout 
+    title="Julian Stamm | Computer Science Student & Generative Designer" 
+    description="Portfolio of Julian Stamm, a computer science student at the University of Bonn specializing in computer graphics, WebGL, and generative design."
+    showBackground={true} 
+    showTypewriter={true}
+>
+    <main>
+        <span class="typed">
+            <h1>julcs website</h1>
+
+            <p>My name is Julian and I am a computer science student at the University of Bonn with special interest in:</p>
+
+            <ul>
+                <li>&gt; Computer Graphics</li>
+                <li>&gt; Generative Design</li>
+                <li>&gt; High-performance WebGL</li>
+            </ul>
+
+            <p>
+                <a href="/gallery">&gt; Check out my work here</a><br/>
+                <a href="mailto:mail@julcs.de">&gt; Contact me</a>
+            </p>
+
+            <p>{dateStr} - julcs</p>
+        </span>
+        <span class="cursor">_</span>
+    </main>
+    <Footer />
+</Layout>

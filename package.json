@@ -1,0 +1,21 @@
+{
+  "name": "julcs-com",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "node scripts/generate-icons.js && astro build",
+    "generate-icons": "node scripts/generate-icons.js",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.2",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "astro": "^6.2.2",
+    "sharp": "^0.34.5"
+  }
+}

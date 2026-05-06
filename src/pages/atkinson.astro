@@ -1,0 +1,280 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+    title="Atkinson Dithering Converter | WebGL Image Processing" 
+    description="High-performance WebGL-based image converter using the Atkinson dithering algorithm. Transform your images into stylized black and white or color-dithered graphics."
+>
+    <style slot="head">
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: sans-serif;
+            /* Added generic font for UI controls */
+        }
+
+        #canvas {
+            image-rendering: pixelated;
+            /* Changed to pixelated for sharper preview */
+            margin-top: 10px;
+            width: 80%;
+            height: 80%;
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+            background: #eee;
+            /* Slight background to see transparency if any */
+        }
+
+        #controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            /* Added spacing between controls */
+            align-items: center;
+        }
+    </style>
+
+    <h1>Atkinson Converter</h1>
+    <input type="file" id="upload" accept="image/*">
+    <div id="controls">
+        <label><input type="checkbox" id="colorCheckbox" checked> Colored</label>
+
+        <label>
+            Shape:
+            <select id="shapeSelect">
+                <option value="circle">Circle</option>
+                <option value="square">Square</option>
+            </select>
+        </label>
+
+        <label><input type="range" id="scale" min=0.1 max=1.5 step=0.1 value=1> Scale</label>
+        <button id="download" disabled>Download PNG</button>
+        <button id="downloadSVG" disabled>Download SVG</button>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        let ctx: CanvasRenderingContext2D | null, originalImageData: ImageData | null, imageData: ImageData | null, img: HTMLImageElement | null;
+
+        function sRGBToLinear(x: number) {
+            return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+        }
+
+        function linearToSRGB(x: number) {
+            return x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+        }
+
+        function sRGBToLuminance(r: number, g: number, b: number) {
+            return linearToSRGB(0.2126 * sRGBToLinear(r) + 0.7152 * sRGBToLinear(g) + 0.0722 * sRGBToLinear(b));
+        }
+
+        function loadImage(src: string) {
+            img = new Image();
+
+            img.onload = function () {
+                processImage();
+            }
+
+            img.src = src;
+        }
+
+        function processImage() {
+            const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+            const scale = (document.getElementById('scale') as HTMLInputElement).value;
+            if (!img) return;
+            canvas.width = img.width * parseFloat(scale);
+            canvas.height = img.height * parseFloat(scale);
+
+            ctx = canvas.getContext('2d', { colorSpace: "srgb" });
+            if (!ctx) return;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height, { colorSpace: "srgb" });
+
+            applyAtkinson();
+            (document.getElementById('download') as HTMLButtonElement).disabled = false;
+            (document.getElementById('downloadSVG') as HTMLButtonElement).disabled = false;
+        }
+
+        function applyAtkinson() {
+            const color = (document.getElementById('colorCheckbox') as HTMLInputElement).checked;
+            if (!originalImageData || !ctx) return;
+            imageData = atkinsonDithering(originalImageData, color);
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function atkinsonDithering(originalImageData: ImageData, color = true) {
+            let imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height);
+            const width = imageData.width;
+            const height = imageData.height;
+            const data = imageData.data;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const index = (y * width + x) * 4;
+
+                    // Convert pixel color to linear space if checkbox is checked
+                    let r = data[index + 0];
+                    let g = data[index + 1];
+                    let b = data[index + 2];
+
+                    if (!color) {
+                        r = g = b = Math.round(255 * sRGBToLuminance(r / 255, g / 255, b / 255));
+                    }
+
+                    // Quantize colors
+                    const newR = r >= 128 ? 255 : 0;
+                    const newG = g >= 128 ? 255 : 0;
+                    const newB = b >= 128 ? 255 : 0;
+
+                    data[index + 0] = newR;
+                    data[index + 1] = newG;
+                    data[index + 2] = newB;
+
+                    // Calculate quantization error
+                    const errR = r - newR;
+                    const errG = g - newG;
+                    const errB = b - newB;
+
+                    // Distribute error to neighboring pixels
+                    const distributeError = (x: number, y: number, factor: number) => {
+                        if (x >= 0 && x < width && y >= 0 && y < height) {
+                            const neighborIndex = (y * width + x) * 4;
+                            data[neighborIndex + 0] = Math.min(255, Math.max(0, Math.round((data[neighborIndex + 0] + errR * factor))));
+                            data[neighborIndex + 1] = Math.min(255, Math.max(0, Math.round((data[neighborIndex + 1] + errG * factor))));
+                            data[neighborIndex + 2] = Math.min(255, Math.max(0, Math.round((data[neighborIndex + 2] + errB * factor))));
+                        }
+                    };
+
+                    distributeError(x + 1, y, 1 / 8);
+                    distributeError(x + 2, y, 1 / 8);
+                    distributeError(x - 1, y + 1, 1 / 8);
+                    distributeError(x, y + 1, 1 / 8);
+                    distributeError(x + 1, y + 1, 1 / 8);
+                    distributeError(x, y + 2, 1 / 8);
+                }
+            }
+
+            return imageData;
+        }
+
+        function createSVGFromImageData(imageData: ImageData) {
+            // Get the selected shape
+            const shapeType = (document.getElementById('shapeSelect') as HTMLSelectElement).value;
+
+            // Create an SVG element
+            let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+            // Set SVG width and height to match image data
+            svg.setAttribute("width", imageData.width.toString());
+            svg.setAttribute("height", imageData.height.toString());
+
+            // Create background
+            let background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            svg.appendChild(background);
+            background.setAttribute("width", "100%");
+            background.setAttribute("height", "100%");
+            background.setAttribute("fill", "black");
+
+            const data = imageData.data;
+            // Loop through each pixel in the image data
+            for (let y = 0; y < imageData.height; y++) {
+                for (let x = 0; x < imageData.width; x++) {
+                    // Get the index of the pixel in the image data array
+                    let index = (y * imageData.width + x) * 4;
+
+                    const r = data[index + 0];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+
+                    // Check if the pixel is non-black (visible)
+                    if (r > 0 || g > 0 || b > 0) {
+                        const colorString = `rgb(${r}, ${g}, ${b})`;
+
+                        if (shapeType === 'circle') {
+                            // Create a circle element
+                            let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            // Offset by 0.5 to center the circle in the pixel grid cell
+                            circle.setAttribute("cx", (x + 0.5).toString());
+                            circle.setAttribute("cy", (y + 0.5).toString());
+                            circle.setAttribute("r", "0.5");
+                            circle.setAttribute("fill", colorString);
+                            svg.appendChild(circle);
+                        } else {
+                            // Create a square (rect) element
+                            let rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                            rect.setAttribute("x", x.toString());
+                            rect.setAttribute("y", y.toString());
+                            rect.setAttribute("width", "1");
+                            rect.setAttribute("height", "1");
+                            rect.setAttribute("fill", colorString);
+                            // Optional: Add shape-rendering for crisp edges on squares
+                            rect.setAttribute("shape-rendering", "crispEdges");
+                            svg.appendChild(rect);
+                        }
+                    }
+                }
+            }
+
+            return svg;
+        }
+
+        // Function to download SVG
+        function downloadSVG() {
+            if (!imageData) return;
+            let svgElement = createSVGFromImageData(imageData);
+            // Serialize the SVG to XML
+            let svgData = new XMLSerializer().serializeToString(svgElement);
+
+            // Create a blob from the SVG data
+            let blob = new Blob([svgData], { type: "image/svg+xml" });
+
+            // Create a download link
+            let link = document.createElement("a");
+            link.download = `atkinson_${(document.getElementById('shapeSelect') as HTMLSelectElement).value}.svg`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+        }
+
+        function handleImageUpload(event: Event) {
+            const target = event.target as HTMLInputElement;
+            if (!target.files) return;
+            const file = target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                if (e.target?.result) {
+                    loadImage(e.target.result as string);
+                }
+            }
+
+            reader.readAsDataURL(file);
+        }
+
+        function downloadImage() {
+            const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+            const link = document.createElement('a');
+            link.download = 'atkinson.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function init() {
+            document.getElementById('upload')?.addEventListener('change', handleImageUpload);
+            document.getElementById('download')?.addEventListener('click', downloadImage);
+            document.getElementById('downloadSVG')?.addEventListener('click', downloadSVG);
+            document.getElementById('scale')?.addEventListener('input', processImage);
+            document.getElementById('colorCheckbox')?.addEventListener('change', applyAtkinson);
+            // Note: Changing the shape doesn't need to re-process the canvas image, 
+            // as the shape is only applied during SVG export.
+        }
+
+        init();
+    </script>
+</Layout>
