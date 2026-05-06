@@ -1,6 +1,6 @@
 ---
 import { getEntry, render } from 'astro:content';
-import Layout from '../layouts/Layout.astro';
+import TerminalLayout from '../layouts/TerminalLayout.astro';
 
 const entry = await getEntry('pages', '404');
 if (!entry) throw new Error('Could not find 404 content');
@@ -8,16 +8,9 @@ if (!entry) throw new Error('Could not find 404 content');
 const { Content } = await render(entry);
 ---
 
-<Layout 
+<TerminalLayout 
     title={entry.data.title} 
     description={entry.data.description}
-    showBackground={true} 
-    showTypewriter={true}
 >
-    <main>
-        <span class="typed">
-            <Content />
-        </span>
-        <span class="cursor">_</span>
-    </main>
-</Layout>
+    <Content />
+</TerminalLayout>

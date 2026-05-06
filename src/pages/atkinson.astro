@@ -1,14 +1,10 @@
 ---
-import { getEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-
-const entry = await getEntry('tools', 'atkinson');
-if (!entry) throw new Error('Could not find atkinson content');
 ---
 
 <Layout 
-    title={entry.data.title} 
-    description={entry.data.description}
+    title="Atkinson Dithering Converter | WebGL Image Processing" 
+    description="High-performance WebGL-based image converter using the Atkinson dithering algorithm. Transform your images into stylized black and white or color-dithered graphics."
 >
     <style slot="head">
         body {

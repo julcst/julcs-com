@@ -1,7 +1,6 @@
 ---
 import { getEntry, render } from 'astro:content';
-import Layout from '../layouts/Layout.astro';
-import Footer from '../components/Footer.astro';
+import TerminalLayout from '../layouts/TerminalLayout.astro';
 
 const entry = await getEntry('pages', 'index');
 if (!entry) throw new Error('Could not find index content');
@@ -14,18 +13,11 @@ const year = today.getFullYear();
 const dateStr = `${month}/${year}`;
 ---
 
-<Layout 
+<TerminalLayout 
     title={entry.data.title} 
     description={entry.data.description}
-    showBackground={true} 
-    showTypewriter={true}
+    showFooter={true}
 >
-    <main>
-        <span class="typed">
-            <Content />
-            <p>{dateStr} - julcs</p>
-        </span>
-        <span class="cursor">_</span>
-    </main>
-    <Footer />
-</Layout>
+    <Content />
+    <p>{dateStr} - julcs</p>
+</TerminalLayout>

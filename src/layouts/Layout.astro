@@ -7,15 +7,11 @@ import BaseHead from '../components/BaseHead.astro';
 interface Props {
 	title: string;
 	description?: string;
-	showBackground?: boolean;
-	showTypewriter?: boolean;
 }
 
 const { 
 	title, 
-	description = "Personal website of Julian Stamm", 
-	showBackground = false, 
-	showTypewriter = false 
+	description = "Personal website of Julian Stamm",
 } = Astro.props;
 ---
 
@@ -27,8 +23,5 @@ const {
 	</head>
 	<body>
 		<slot />
-		{showBackground && <canvas id="sketch" />}
-		{showBackground && <script is:inline src="/scripts/sketch.js"></script>}
-		{showTypewriter && <script is:inline src="/scripts/common.js"></script>}
 	</body>
 </html>

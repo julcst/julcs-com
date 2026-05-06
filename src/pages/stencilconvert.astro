@@ -1,14 +1,10 @@
 ---
-import { getEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-
-const entry = await getEntry('tools', 'stencilconvert');
-if (!entry) throw new Error('Could not find stencilconvert content');
 ---
 
 <Layout 
-    title={entry.data.title} 
-    description={entry.data.description}
+    title="Stencil Image Converter | Smooth WebGL Processing" 
+    description="Create stencil-ready images using WebGL2 gaussian blur and high-performance grayscale conversion. Ideal for graphic design and generative art."
 >
     <style slot="head">
         body {

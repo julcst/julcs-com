@@ -23,3 +23,8 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+dist/
+.astro/
+public/apple-touch-icon.png
+public/favicon-32.png
+public/scripts/
