@@ -27,6 +27,8 @@ cv:
         end_date: 2025-09
         highlights:
           - "Grade: 1.2"
+          - "[Bachelor's Thesis: Bidirectional Neural Radiance
+            Caching](https://files.julcs.com/bachelor-thesis.pdf)"
       - institution: Rheinische Friedrich-Wilhelms-Universität Bonn
         area: Computer Science
         degree: M.Sc.
