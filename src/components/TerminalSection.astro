@@ -152,6 +152,22 @@ const { id, class: className, isIntro = false } = Astro.props;
         display: inline;
     }
 
+    /* PRESERVE WHITESPACE AND LINE BREAKS */
+    .typed {
+        display: inline;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .typed :global(p),
+    .typed :global(ul),
+    .typed :global(li),
+    .typed :global(h1),
+    .typed :global(h2),
+    .typed :global(h3) {
+        white-space: pre-wrap;
+    }
+
     @media (max-width: 800px) {
         .content-box {
             width: calc(100% - 2em);
@@ -255,9 +271,12 @@ const { id, class: className, isIntro = false } = Astro.props;
             function collectAndClear(node: Node) {
                 if (node.nodeType === Node.TEXT_NODE) {
                     const text = node.textContent || "";
-                    if (text.trim().length > 0) {
-                        textNodes.push({ node, originalText: text });
-                    }
+
+                    // HEURISTIC: Skip nodes that are purely indentation (contain newlines and are just whitespace)
+                    // but PRESERVE single spaces between words/tags.
+                    if (text.trim().length === 0 && text.includes("\n")) return;
+
+                    textNodes.push({ node, originalText: text });
                     node.textContent = "";
                 } else {
                     Array.from(node.childNodes).forEach(collectAndClear);
@@ -265,7 +284,7 @@ const { id, class: className, isIntro = false } = Astro.props;
             }
             collectAndClear(rootNode);
 
-            const typeSpeed = 10;
+            const typeSpeed = 1;
             for (const item of textNodes) {
                 if (isCancelled) break;
                 for (let i = 0; i <= item.originalText.length; i++) {
@@ -290,7 +309,6 @@ const { id, class: className, isIntro = false } = Astro.props;
                 ?.substring(1);
             if (!targetId) return;
 
-            // Find index of target section
             const targetSection = document.getElementById(targetId);
             if (!targetSection) return;
             const targetTyped = targetSection.querySelector(
@@ -298,22 +316,16 @@ const { id, class: className, isIntro = false } = Astro.props;
             ) as HTMLElement;
             const targetIndex = typedElements.indexOf(targetTyped);
 
-            // 1. Force complete everything up to target
             while (currentTypingIndex < targetIndex) {
                 if (isTyping) {
                     cancelCurrentTyping();
-                    // Wait a tiny bit for the current typing to actually stop and resolve
                     await new Promise((r) => setTimeout(r, 20));
                 }
 
                 const node = typedElements[currentTypingIndex];
-                // Force full text if it hasn't been collected/cleared yet
                 node.style.opacity = "1";
-                node.dataset.initialized = "true";
                 currentTypingIndex++;
             }
-
-            // 2. Start typing the target section immediately
             tryStartNext();
         });
     });
