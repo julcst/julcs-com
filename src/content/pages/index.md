@@ -5,8 +5,11 @@ description: "Portfolio of Julian Stamm, computer science master student at the 
 
 # julian stamm
 
-master student of computer science at the university of bonn, germany.
+computer science master's student at the university of Bonn, Germany.
 
 specializing in computer graphics, neural rendering and real-time gi.
 
 [> contact me](mailto:mail@julcs.com)
+[> download cv](/cv.pdf)
+[> download bachelor's thesis](https://files.julcs.com/bachelor-thesis.pdf)
+

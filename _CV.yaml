@@ -1,5 +1,3 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/rendercv/rendercv/main/schema.json
-
 cv:
   name: Julian C. Stamm
   location: Bonn, Germany
@@ -17,8 +15,6 @@ cv:
         end_date: 2021-07
         highlights:
           - "Grade: 1.3"
-          - Eight years of English and 12 points in the written English Abitur
-            exam
           - MINT-EC certificate "with distinction"
       - institution: Rheinische Friedrich-Wilhelms-Universität Bonn
         area: Computer Science
@@ -37,11 +33,11 @@ cv:
         highlights:
           - "Expected graduation date: 2027"
     experience:
-      - company: Subway Delmenhorst
-        position: Temporary Food Service Worker
-        location: Delmenhorst, Germany
-        start_date: 2019-09
-        end_date: 2021-05
+      # - company: Subway Delmenhorst
+      #   position: Temporary Food Service Worker
+      #   location: Delmenhorst, Germany
+      #   start_date: 2019-09
+      #   end_date: 2021-05
       - company: Atlas Spare Parts GmbH
         position: Temporary Worker in Software Development Team
         location: Ganderkesee, Germany
@@ -92,6 +88,16 @@ cv:
         highlights:
           - Falcor implementation of my Bachelor Thesis "Bidirectional Neural
             Radiance Caching"
+    publications:
+      - title: Photon-Driven Neural Radiance Caching
+        type: Poster
+        authors:
+          - Julian C. Stamm
+          - Tom Kneiphof
+          - Reinhard Klein
+        venue: I3D 2026
+        doi: 10.1145/3807895.3807923
+        date: 2026-05
 
 design:
   theme: sb2nov

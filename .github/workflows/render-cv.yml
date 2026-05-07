@@ -3,7 +3,7 @@ name: Render CV
 on:
   push:
     paths:
-      - "cv.yaml"
+      - "_CV.yaml"
   workflow_dispatch:
 
 jobs:
@@ -22,26 +22,13 @@ jobs:
 
       - name: Render CV
         run: |
-          uvx --with "rendercv[full]" rendercv render cv.yaml
+          uvx --with "rendercv[full]" rendercv render _CV.yaml
           # RenderCV creates a folder named 'rendercv_output'
           # We need to find the generated .md and .pdf files
           mkdir -p public/
           mkdir -p src/content/pages/
           cp rendercv_output/Julian_C._Stamm_CV.pdf public/cv.pdf
-
-          # Process Markdown to add your terminal bullets (> )
-          # We take the content, excluding the header (first few lines)
-          # then prepend > to every list item
-          echo "---" > src/content/pages/cv.md
-          echo "title: \"CV | Julian Stamm\"" >> src/content/pages/cv.md
-          echo "description: \"Curriculum Vitae of Julian Stamm.\"" >> src/content/pages/cv.md
-          echo "---" >> src/content/pages/cv.md
-          echo "" >> src/content/pages/cv.md
-          echo "[> Download PDF Version](/cv.pdf)" >> src/content/pages/cv.md
-          echo "" >> src/content/pages/cv.md
-
-          # Prepend '> ' to list items in the generated markdown
-          sed 's/^[[:space:]]*- /> /g' rendercv_output/Julian_C._Stamm_CV.md >> src/content/pages/cv.md
+          cp rendercv_output/Julian_C._Stamm_CV.md src/content/pages/cv.md
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v7
