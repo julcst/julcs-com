@@ -1,48 +1,104 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/rendercv/rendercv/main/schema.json
 
 cv:
-  name: Julian Stamm
+  name: Julian Caspar Stamm
   location: Bonn, Germany
-  email: mail@julcs.de
-  website: https://julcs.de
+  email: mail@julcs.com
+  website: https://julcs.com
   social_networks:
     - network: GitHub
-      username: julianstamm
-  
+      username: julcst
   sections:
     education:
-      - institution: University of Bonn
+      - institution: Max-Planck-Gymnasium Delmenhorst
+        area: General Higher Education Entrance Qualification
+        degree: Abitur
+        start_date: 2012-08
+        end_date: 2021-07
+        highlights:
+          - "Grade: 1.3"
+          - Eight years of English and 12 points in the written English Abitur
+            exam
+          - MINT-EC certificate "with distinction"
+      - institution: Rheinische Friedrich-Wilhelms-Universität Bonn
         area: Computer Science
         degree: B.Sc.
-        start_date: 2023-09
+        start_date: 2021-10
+        end_date: 2025-09
+        highlights:
+          - "Grade: 1.2"
+      - institution: Rheinische Friedrich-Wilhelms-Universität Bonn
+        area: Computer Science
+        degree: M.Sc.
+        start_date: 2025-10
         end_date: present
         highlights:
-          - "Special interest in Computer Graphics and Generative Design"
-
-    skills:
-      - label: Languages
-        details: Python, C++, JavaScript, TypeScript, GLSL
-      - label: Technologies
-        details: WebGL, OpenGL, Astro, React
-      - label: Creative
-        details: Generative Art, Procedural Modeling
-
-    projects:
-      - name: Personal Website & Portfolio
-        date: 2026-05
+          - "Expected graduation date: 2027"
+    experience:
+      - company: Subway Delmenhorst
+        position: Temporary Food Service Worker
+        location: Delmenhorst, Germany
+        start_date: 2019-09
+        end_date: 2021-05
+      - company: Atlas Spare Parts GmbH
+        position: Temporary Worker in Software Development Team
+        location: Ganderkesee, Germany
+        start_date: 2021-05
+        end_date: 2021-09
+      - company: Rheinische Friedrich-Wilhelms-Universität Bonn
+        position: Teaching Assistant
+        location: Bonn, Germany
+        start_date: 2024-04
+        end_date: present
         highlights:
-          - "Built with Astro and TypeScript"
-          - "Features a high-performance WebGL background and custom terminal typewriter animation"
-          - "Automated CV generation and SEO optimization"
+          - Teaching assistant for the course "Introduction to Computer Graphics"
+          - Assisted in the creation of exercises and exams
+          - Teaching assistant for the course "Foundations of 4D/6D Object
+            Capture for Virtual Environments"
+    projects:
+      - name: "[gltemplate](https://github.com/julcst/gltemplate)"
+        start_date: 2023-08
+        end_date: present
+        highlights:
+          - OpenGL framework developed for CG exercises
+          - Written in C++ and CMake
+      - name: "[Stable Real-Time Simulation of Mesoscopic
+          Glints](https://github.com/julcst/Lab-ComputerGraphics-WS2023)"
+        start_date: 2023-10
+        end_date: 2024-03
+        highlights:
+          - Computer Graphics Lab as part of the B.Sc. Computer Science
+          - Implementation of the discrete stochastic microfacet model from
+            "Real-Time Rendering of Glinty Appearances Using Distributed
+            Binomial Laws on Anisotropic Grids" by Thomas Deliot and Laurent
+            Belcour
+      - name: "[nBounce](https://github.com/julcst/nbounce)"
+        start_date: 2024-08
+        end_date: present
+        highlights:
+          - Self-educational real-time software pathtracer
+          - Written in Rust and wgpu
+      - name: "[BiNRC](https://github.com/julcst/binrc)"
+        start_date: 2025-02
+        end_date: 2025-09
+        highlights:
+          - OptiX implementation of my Bachelor Thesis "Bidirectional Neural
+            Radiance Caching"
+      - name: "[PhotonNRC](https://github.com/julcst/photon-nrc)"
+        start_date: 2025-02
+        end_date: present
+        highlights:
+          - Falcor implementation of my Bachelor Thesis "Bidirectional Neural
+            Radiance Caching"
 
 design:
-  theme: classic
-  font: Latin Modern Serif
-  font_size: 10pt
-  page_size: a4paper
-  margins:
-    page:
-      top: 2cm
-      bottom: 2cm
-      left: 2cm
-      right: 2cm
+  theme: sb2nov
+  typography:
+    font_family: Source Sans 3
+  page:
+    size: a4
+  links:
+    show_external_link_icon: true
+  header:
+    connections:
+      show_icons: true
