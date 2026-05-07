@@ -1,0 +1,54 @@
+---
+import InlineText from "./InlineText.astro";
+
+interface Entry {
+    title: string;
+    date?: string;
+    meta?: string;
+    details?: string[];
+}
+
+interface Props {
+    title: string;
+    entries?: Entry[];
+}
+
+const { title, entries = [] } = Astro.props;
+const safeEntries = Array.isArray(entries) ? entries : [];
+---
+
+{
+    safeEntries.length > 0 ? (
+        <section class="cv-section">
+            <h2 class="cv-section-title">{title}</h2>
+            <div class="cv-entries">
+                {safeEntries.map((entry) => (
+                    <article class="cv-entry">
+                        <div class="cv-entry-head">
+                            <h3 class="cv-entry-title">
+                                <InlineText value={entry.title} />
+                            </h3>
+                            {entry.date ? (
+                                <div class="cv-entry-date">{entry.date}</div>
+                            ) : null}
+                        </div>
+                        {entry.meta ? (
+                            <div class="cv-entry-meta">
+                                <InlineText value={entry.meta} />
+                            </div>
+                        ) : null}
+                        {entry.details && entry.details.length > 0 ? (
+                            <ul class="cv-entry-list">
+                                {entry.details.map((detail) => (
+                                    <li>
+                                        <InlineText value={detail} />
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : null}
+                    </article>
+                ))}
+            </div>
+        </section>
+    ) : null
+}

@@ -1,36 +1,227 @@
 ---
-import { getEntry, render } from 'astro:content';
-import Layout from '../layouts/Layout.astro';
-import Footer from '../components/Footer.astro';
-import BackgroundSketch from '../components/BackgroundSketch.astro';
-import TerminalSection from '../components/TerminalSection.astro';
+import { getEntry, render } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+import Footer from "../components/Footer.astro";
+import BackgroundSketch from "../components/BackgroundSketch.astro";
+import TerminalSection from "../components/TerminalSection.astro";
+import CvSection from "../components/CvSection.astro";
+import { parse } from "yaml";
+import cvYamlRaw from "../../_CV.yaml?raw";
 
 // Fetch all entries
-const intro = await getEntry('pages', 'index');
-const cv = await getEntry('pages', 'cv');
-const projects = await getEntry('pages', 'projects');
-const tools = await getEntry('pages', 'tools');
+const intro = await getEntry("pages", "index");
+const projects = await getEntry("pages", "projects");
+const tools = await getEntry("pages", "tools");
 
-if (!intro || !cv || !projects || !tools) throw new Error('Could not find all content entries');
+if (!intro || !projects || !tools)
+    throw new Error("Could not find all content entries");
 
 const { Content: IntroContent } = await render(intro);
-const { Content: CVContent } = await render(cv);
 const { Content: ProjectsContent } = await render(projects);
 const { Content: ToolsContent } = await render(tools);
 
+const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sept",
+    "Oct",
+    "Nov",
+    "Dec",
+];
+
+function formatDate(value) {
+    if (!value) return "";
+    if (typeof value === "string" && value.toLowerCase() === "present")
+        return "present";
+    if (typeof value !== "string") return String(value);
+
+    const match = value.match(/^(\d{4})(?:-(\d{2}))?$/);
+    if (!match) return value;
+
+    const year = match[1];
+    const month = match[2] ? Number.parseInt(match[2], 10) : 0;
+    if (!month || month < 1 || month > 12) return year;
+    return `${monthNames[month - 1]} ${year}`;
+}
+
+function formatDateRange(start, end) {
+    const startText = formatDate(start);
+    const endText = formatDate(end);
+    if (!startText && !endText) return "";
+    if (!endText) return startText;
+    if (!startText) return endText;
+    return `${startText} – ${endText}`;
+}
+
+function normalizeEntryArray(value) {
+    if (!Array.isArray(value)) return [];
+    return value.filter((item) => item && typeof item === "object");
+}
+
+function normalizeStringArray(value) {
+    if (!Array.isArray(value)) return [];
+    return value
+        .filter((item) => item !== null && item !== undefined)
+        .map((item) => (typeof item === "string" ? item : String(item)));
+}
+
+function normalizeText(value) {
+    if (value === null || value === undefined) return "";
+    return typeof value === "string" ? value : String(value);
+}
+
+function formatMetaLine(values) {
+    return values.map(normalizeText).filter(Boolean).join(" · ");
+}
+
+function buildEducationEntries(items) {
+    return normalizeEntryArray(items)
+        .map((item) => {
+            const title = normalizeText(item.institution);
+            const date = formatDateRange(item.start_date, item.end_date);
+            const meta =
+                item.degree && item.area
+                    ? `${item.degree} in ${item.area}`
+                    : "";
+            const details = normalizeStringArray(item.highlights);
+
+            return { title, date, meta, details };
+        })
+        .filter((entry) => entry.title);
+}
+
+function buildExperienceEntries(items) {
+    return normalizeEntryArray(items)
+        .map((item) => {
+            const title = normalizeText(item.position);
+            const date = formatDateRange(item.start_date, item.end_date);
+            const meta = formatMetaLine([item.location, item.company]);
+            const details = normalizeStringArray(item.highlights);
+
+            return { title, date, meta, details };
+        })
+        .filter((entry) => entry.title);
+}
+
+function buildProjectEntries(items) {
+    return normalizeEntryArray(items)
+        .map((item) => {
+            const title = normalizeText(item.name);
+            const date = formatDateRange(item.start_date, item.end_date);
+            const details = normalizeStringArray(item.highlights);
+
+            return { title, date, meta: "", details };
+        })
+        .filter((entry) => entry.title);
+}
+
+function buildPublicationEntries(items) {
+    return normalizeEntryArray(items)
+        .map((item) => {
+            const title = normalizeText(item.title);
+            const date = formatDate(item.date);
+            const meta = normalizeStringArray(item.authors).join(", ");
+            const details = [
+                normalizeText(item.venue),
+                item.doi ? `[${item.doi}](https://doi.org/${item.doi})` : "",
+            ].filter(Boolean);
+
+            return { title, date, meta, details };
+        })
+        .filter((entry) => entry.title);
+}
+
+let yamlSections = null;
+let yamlProfile = null;
+try {
+    const cvYaml = parse(cvYamlRaw);
+    yamlSections = cvYaml?.cv?.sections ?? null;
+    yamlProfile = cvYaml?.cv ?? null;
+} catch (e) {
+    yamlSections = null;
+    yamlProfile = null;
+}
+
+const educationEntries = buildEducationEntries(yamlSections?.education);
+const experienceEntries = buildExperienceEntries(yamlSections?.experience);
+const projectEntries = buildProjectEntries(yamlSections?.projects);
+const publicationEntries = buildPublicationEntries(yamlSections?.publications);
+
+const hasCvYaml = educationEntries.length > 0 || experienceEntries.length > 0;
+const hasProjectsYaml = projectEntries.length > 0;
+const hasPublications = publicationEntries.length > 0;
+
+function buildContactItems(profile) {
+    if (!profile) return [];
+    const items = [];
+
+    if (profile.email) {
+        items.push({
+            label: "Email",
+            value: profile.email,
+            href: `mailto:${profile.email}`,
+        });
+    }
+    if (profile.location) {
+        items.push({ label: "Location", value: profile.location });
+    }
+    if (profile.website) {
+        items.push({
+            label: "Website",
+            value: profile.website,
+            href: profile.website,
+        });
+    }
+
+    const socials = normalizeEntryArray(profile.social_networks);
+    socials.forEach((item) => {
+        const network = normalizeText(item.network);
+        const username = normalizeText(item.username);
+        if (!network && !username) return;
+
+        let href = normalizeText(item.url);
+        if (!href && network.toLowerCase() === "github" && username) {
+            href = `https://github.com/${username}`;
+        }
+
+        const value = username ? `${network}: ${username}` : network;
+        items.push({ label: "Social", value, href });
+    });
+
+    return items;
+}
+
+const contactItems = buildContactItems(yamlProfile);
+
 const today = new Date();
-const dateStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
 ---
 
 <Layout title={intro.data.title} description={intro.data.description}>
     <BackgroundSketch />
-    
+
     <!-- Fixed Intro Box (Collapses to Header) -->
     <TerminalSection isIntro={true}>
         <IntroContent />
         <p>
-            <a href="#cv">&gt; View CV</a><br/>
-            <a href="#projects">&gt; View Projects</a><br/>
+            <a href="#cv">&gt; View CV</a><br />
+            <a href="#projects">&gt; View Projects</a><br />
+            {
+                hasPublications ? (
+                    <>
+                        <>
+                            <a href="#publications">&gt; View Publications</a>
+                            <br />
+                        </>
+                    </>
+                ) : null
+            }
             <a href="#tools">&gt; View Tools</a>
         </p>
         <p>{dateStr} - julcs</p>
@@ -39,16 +230,79 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFul
     <!-- Scrollable Content Area -->
     <div class="scroll-container">
         <TerminalSection id="cv" class="content-box">
-            <CVContent />
+            {
+                hasCvYaml ? (
+                    <div class="cv-body">
+                        {yamlProfile?.name || contactItems.length > 0 ? (
+                            <div class="cv-profile">
+                                {yamlProfile?.name ? (
+                                    <div class="cv-profile-name">
+                                        {yamlProfile.name}
+                                    </div>
+                                ) : null}
+                                {contactItems.length > 0 ? (
+                                    <div class="cv-profile-meta">
+                                        {contactItems.map((item) => (
+                                            <span class="cv-profile-item">
+                                                <span class="cv-profile-label">
+                                                    {item.label}:
+                                                </span>
+                                                {item.href ? (
+                                                    <a href={item.href}>
+                                                        {item.value}
+                                                    </a>
+                                                ) : (
+                                                    <span>{item.value}</span>
+                                                )}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : null}
+                            </div>
+                        ) : null}
+                        <CvSection
+                            title="Education"
+                            entries={educationEntries}
+                        />
+                        <CvSection
+                            title="Experience"
+                            entries={experienceEntries}
+                        />
+                    </div>
+                ) : (
+                    <div class="cv-empty">CV data unavailable.</div>
+                )
+            }
         </TerminalSection>
 
         <TerminalSection id="projects" class="content-box">
-            <ProjectsContent />
+            {
+                hasProjectsYaml ? (
+                    <div class="cv-body">
+                        <CvSection title="Projects" entries={projectEntries} />
+                    </div>
+                ) : (
+                    <ProjectsContent />
+                )
+            }
         </TerminalSection>
 
         <TerminalSection id="tools" class="content-box">
             <ToolsContent />
         </TerminalSection>
+
+        {
+            hasPublications ? (
+                <TerminalSection id="publications" class="content-box">
+                    <div class="cv-body">
+                        <CvSection
+                            title="Publications"
+                            entries={publicationEntries}
+                        />
+                    </div>
+                </TerminalSection>
+            ) : null
+        }
     </div>
 
     <Footer />
@@ -61,6 +315,162 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFul
         display: flex;
         flex-direction: column;
         gap: 2rem; /* Tighter spacing between sections */
+    }
+
+    .cv-body {
+        display: flex;
+        flex-direction: column;
+        gap: 1.1rem;
+        white-space: normal;
+    }
+
+    .cv-profile {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .cv-profile-name {
+        font-size: 1.25em;
+        font-weight: 700;
+    }
+
+    .cv-profile-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem 1.6rem;
+        font-size: 0.95em;
+    }
+
+    .cv-profile-item {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.2rem;
+    }
+
+    .cv-profile-label {
+        font-size: 0.72em;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.55;
+    }
+
+    .cv-empty {
+        opacity: 0.7;
+        font-size: 0.95em;
+    }
+
+    .cv-body * {
+        white-space: normal;
+    }
+
+    .cv-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .cv-section-title {
+        font-size: 0.95em;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 0 0 0.4rem;
+        padding-bottom: 0.25rem;
+        border-bottom: 1px solid currentColor;
+        opacity: 0.85;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .cv-entries {
+        display: flex;
+        flex-direction: column;
+        gap: 1.6rem;
+    }
+
+    .cv-entry {
+        margin: 0;
+        padding-bottom: 0.1rem;
+    }
+
+    .cv-entry + .cv-entry {
+        margin-top: 0.2rem;
+    }
+
+    .cv-entry-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) max-content;
+        align-items: baseline;
+        column-gap: 1.2rem;
+    }
+
+    .cv-entry-title {
+        font-weight: 700;
+        font-size: 1.05em;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        flex: 1 1 auto;
+        margin: 0;
+    }
+
+    .cv-entry-title :global(a) {
+        font-weight: 700;
+    }
+
+    .cv-entry-date {
+        text-align: right;
+        white-space: nowrap;
+        opacity: 0.65;
+        font-variant-numeric: tabular-nums;
+        justify-self: end;
+    }
+
+    .cv-entry-meta {
+        margin-top: 0.2rem;
+        opacity: 0.82;
+    }
+
+    .cv-entry-list {
+        list-style: none;
+        padding: 0;
+        margin: 0.25rem 0 0;
+    }
+
+    :global(.typed .cv-entry-list) {
+        margin: 0.25rem 0 0;
+        padding: 0;
+    }
+
+    .cv-entry-list li {
+        position: relative;
+        margin: 0.1rem 0;
+        padding-left: 1.2rem;
+        line-height: 1.35;
+    }
+
+    :global(.typed .cv-entry-list li) {
+        margin: 0.1rem 0;
+    }
+
+    .cv-entry-list li::before {
+        content: ">";
+        position: absolute;
+        left: 0;
+        opacity: 0.7;
+    }
+
+    @media (max-width: 700px) {
+        .cv-entry-head {
+            grid-template-columns: 1fr;
+            row-gap: 0.35rem;
+        }
+
+        .cv-entry-date {
+            text-align: left;
+            width: 100%;
+        }
     }
 
     /* Smooth scroll behavior */

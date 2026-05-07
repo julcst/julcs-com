@@ -8,13 +8,25 @@ import favicons from 'astro-favicons';
 import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
-export default defineConfig({
-  site: 'https://julcs.com',
+export default defineConfig(({ command }) => {
+  const integrations = [sitemap()];
+  if (command === 'build') {
+    integrations.push(favicons());
+  }
 
-  build: {
-    format: 'file'
-  },
+  return {
+    site: 'https://julcs.com',
 
-  integrations: [sitemap(), favicons()],
-  adapter: cloudflare()
+    build: {
+      format: 'file'
+    },
+
+    integrations,
+    adapter: cloudflare(),
+    vite: {
+      optimizeDeps: {
+        exclude: ['astro-favicons', 'virtual:astro-favicons']
+      }
+    }
+  };
 });

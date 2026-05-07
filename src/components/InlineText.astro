@@ -1,0 +1,40 @@
+---
+interface Props {
+    value?: string;
+}
+
+const { value = "" } = Astro.props;
+const text = typeof value === "string" ? value : String(value);
+const parts = [];
+const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+let lastIndex = 0;
+
+for (const match of text.matchAll(regex)) {
+    const matchIndex = match.index ?? 0;
+    if (matchIndex > lastIndex) {
+        parts.push({ type: "text", value: text.slice(lastIndex, matchIndex) });
+    }
+    parts.push({ type: "link", text: match[1], href: match[2] });
+    lastIndex = matchIndex + match[0].length;
+}
+
+if (lastIndex < text.length) {
+    parts.push({ type: "text", value: text.slice(lastIndex) });
+}
+
+if (parts.length === 0) {
+    parts.push({ type: "text", value: text });
+}
+---
+
+<span class="inline-text">
+    {
+        parts.map((part) =>
+            part.type === "link" ? (
+                <a href={part.href}>{part.text}</a>
+            ) : (
+                part.value
+            ),
+        )
+    }
+</span>

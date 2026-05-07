@@ -10,8 +10,29 @@ const {
   title,
   description,
   image = "/apple-touch-icon.png", // Fallback to icon if no specific social image
-  canonicalURL = new URL(Astro.url.pathname, Astro.site),
+  canonicalURL: canonicalProp,
 } = Astro.props;
+
+const canonicalURL = (() => {
+  if (canonicalProp) return canonicalProp;
+  try {
+    if (Astro.site && Astro.url) return new URL(Astro.url.pathname, Astro.site);
+  } catch (e) {
+    return Astro.url ?? Astro.site;
+  }
+  return Astro.url ?? Astro.site;
+})();
+
+const socialUrl = Astro.url ?? Astro.site;
+const socialImage = (() => {
+  try {
+    if (Astro.site) return new URL(image, Astro.site);
+    if (Astro.url) return new URL(image, Astro.url);
+  } catch (e) {
+    return image;
+  }
+  return image;
+})();
 ---
 
 <!-- Global Metadata -->
@@ -20,7 +41,7 @@ const {
 <meta name="generator" content={Astro.generator} />
 
 <!-- Canonical URL -->
-<link rel="canonical" href={canonicalURL} />
+{canonicalURL ? <link rel="canonical" href={canonicalURL} /> : null}
 
 <!-- Primary Meta Tags -->
 <title>{title}</title>
@@ -30,17 +51,17 @@ const {
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
-<meta property="og:url" content={Astro.url} />
+{socialUrl ? <meta property="og:url" content={socialUrl} /> : null}
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content={new URL(image, Astro.url)} />
+<meta property="og:image" content={socialImage} />
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:url" content={Astro.url} />
+{socialUrl ? <meta property="twitter:url" content={socialUrl} /> : null}
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
-<meta property="twitter:image" content={new URL(image, Astro.url)} />
+<meta property="twitter:image" content={socialImage} />
 
 <!-- Structured Data (JSON-LD) -->
 <script
