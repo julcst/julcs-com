@@ -25,7 +25,7 @@ jobs:
           # We need to find the generated .md and .pdf files
           mkdir -p public/
           mkdir -p src/content/pages/
-          cp rendercv_output/Julian_Stamm_CV.pdf public/cv.pdf
+          cp rendercv_output/Julian_C._Stamm_CV.pdf public/cv.pdf
           
           # Process Markdown to add your terminal bullets (> )
           # We take the content, excluding the header (first few lines)
@@ -39,7 +39,7 @@ jobs:
           echo "" >> src/content/pages/cv.md
           
           # Prepend '> ' to list items in the generated markdown
-          sed 's/^[[:space:]]*- /> /g' rendercv_output/Julian_Stamm_CV.md >> src/content/pages/cv.md
+          sed 's/^[[:space:]]*- /> /g' rendercv_output/Julian_C._Stamm_CV.md >> src/content/pages/cv.md
 
       - name: Commit and push changes
         run: |

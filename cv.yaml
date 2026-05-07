@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/rendercv/rendercv/main/schema.json
 
 cv:
-  name: Julian Caspar Stamm
+  name: Julian C. Stamm
   location: Bonn, Germany
   email: mail@julcs.com
   website: https://julcs.com

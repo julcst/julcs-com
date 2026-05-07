@@ -34,3 +34,5 @@ public/scripts/
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+rendercv_output/
