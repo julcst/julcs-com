@@ -9,9 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "generate-types": "wrangler types",
-    "deploy": "pnpm run build && wrangler pages deploy dist --project-name julcs-com"
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
