@@ -142,7 +142,7 @@ function normalizeEntryArray<T extends Record<string, unknown>>(
     value: T[] | undefined | null,
 ): T[] {
     if (!Array.isArray(value)) return [];
-    return value.filter((item) => Boolean(item) && typeof item === "object");
+    return value.filter((item) => item && typeof item === "object");
 }
 
 function normalizeStringArray(value: unknown): string[] {
