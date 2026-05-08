@@ -1,5 +1,6 @@
 ---
 import InlineText from "./InlineText.astro";
+import CvDate from "./CvDate.astro";
 
 interface Entry {
     title: string;
@@ -28,9 +29,7 @@ const safeEntries = Array.isArray(entries) ? entries : [];
                             <h3 class="cv-entry-title">
                                 <InlineText value={entry.title} />
                             </h3>
-                            {entry.date ? (
-                                <div class="cv-entry-date">{entry.date}</div>
-                            ) : null}
+                            <CvDate value={entry.date} />
                         </div>
                         {entry.meta ? (
                             <div class="cv-entry-meta">
@@ -52,3 +51,92 @@ const safeEntries = Array.isArray(entries) ? entries : [];
         </section>
     ) : null
 }
+
+<style>
+    .cv-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .cv-section-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: var(--letter-spacing-wide);
+        margin: 0 0 0.4rem;
+        padding-bottom: 0.25rem;
+        border-bottom: 1px solid currentColor;
+        opacity: 0.8;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .cv-entries {
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem;
+    }
+
+    .cv-entry {
+        margin: 0;
+        padding-bottom: 0.1rem;
+    }
+
+    .cv-entry + .cv-entry {
+        margin-top: 0.2rem;
+    }
+
+    .cv-entry-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) max-content;
+        align-items: baseline;
+        column-gap: 1.2rem;
+    }
+
+    .cv-entry-title {
+        font-weight: 700;
+        font-size: 1.02rem;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        flex: 1 1 auto;
+        margin: 0;
+    }
+
+    .cv-entry-title :global(a) {
+        font-weight: 700;
+    }
+
+    .cv-entry-meta {
+        margin-top: 0.25rem;
+        opacity: 0.78;
+        font-size: var(--font-size-sm);
+    }
+
+    .cv-entry-list {
+        list-style: none;
+        padding: 0;
+        margin: 0.4rem 0 0;
+    }
+
+    .cv-entry-list li {
+        position: relative;
+        margin: 0.12rem 0;
+        padding-left: 1.2rem;
+        line-height: 1.4;
+    }
+
+    .cv-entry-list li::before {
+        content: ">";
+        position: absolute;
+        left: 0;
+        opacity: 0.7;
+    }
+
+    @media (max-width: 700px) {
+        .cv-entry-head {
+            grid-template-columns: 1fr;
+            row-gap: 0.35rem;
+        }
+    }
+</style>

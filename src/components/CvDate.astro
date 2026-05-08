@@ -1,0 +1,30 @@
+---
+interface Props {
+    value?: string;
+}
+
+const { value } = Astro.props;
+const text = value ? String(value) : "";
+---
+
+{text ? <div class="cv-entry-date">{text}</div> : null}
+
+<style>
+    .cv-entry-date {
+        text-align: right;
+        white-space: nowrap;
+        opacity: 0.7;
+        font-size: var(--font-size-sm);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
+        justify-self: end;
+    }
+
+    @media (max-width: 700px) {
+        .cv-entry-date {
+            text-align: left;
+            width: 100%;
+            justify-self: start;
+        }
+    }
+</style>
