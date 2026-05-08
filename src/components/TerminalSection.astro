@@ -244,8 +244,23 @@ const { id, class: className, isIntro = false } = Astro.props;
     let isTyping = false;
     let typingRunId = 0;
     let cancelCurrentTyping = () => {};
-    const TYPING_BLOCK_SELECTOR =
-        "p, li, h1, h2, h3, h4, h5, h6, .cv-entry-meta, .cv-entry-date, .cv-profile-name, .cv-profile-item, .cv-section-title, .cv-empty";
+    const TYPING_BLOCK_SELECTORS = [
+        "p",
+        "li",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        ".cv-entry-meta",
+        ".cv-entry-date",
+        ".cv-profile-name",
+        ".cv-profile-item",
+        ".cv-section-title",
+        ".cv-empty",
+    ];
+    const TYPING_BLOCK_SELECTOR = TYPING_BLOCK_SELECTORS.join(", ");
     const TYPING_CHUNK_SIZE = 4;
     const TYPING_DELAY_MS = 8;
     const HASH_LINK_SELECTOR = 'a[href^="#"]';
@@ -362,11 +377,11 @@ const { id, class: className, isIntro = false } = Astro.props;
                     i += TYPING_CHUNK_SIZE
                 ) {
                     if (isCancelled) break;
-                    const nextIndex = Math.min(
-                        item.originalText.length,
-                        i + TYPING_CHUNK_SIZE,
+                    const nextIndex = i + TYPING_CHUNK_SIZE;
+                    item.node.textContent = item.originalText.slice(
+                        0,
+                        nextIndex,
                     );
-                    item.node.textContent = item.originalText.slice(0, nextIndex);
                     if (globalCursor) {
                         item.node.after(globalCursor);
                     }
@@ -400,8 +415,8 @@ const { id, class: className, isIntro = false } = Astro.props;
         tryStartNext();
     }
 
-    const hashLinks = document.querySelectorAll(HASH_LINK_SELECTOR);
-    hashLinks.forEach((link) => {
+    const anchorLinks = document.querySelectorAll(HASH_LINK_SELECTOR);
+    anchorLinks.forEach((link) => {
         link.addEventListener("click", async () => {
             const targetId = (link as HTMLAnchorElement)
                 .getAttribute("href")
