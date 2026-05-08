@@ -332,9 +332,8 @@ const shouldRenderNav = isIntro && navLinks.length > 0;
                         await new Promise((r) => setTimeout(r, typeSpeed));
                     }
                 }
-                resolve();
             };
-            void typeNext();
+            typeNext().then(resolve);
         });
     }
 
@@ -352,8 +351,9 @@ const shouldRenderNav = isIntro && navLinks.length > 0;
             const targetTyped = targetSection.querySelector<HTMLElement>(
                 ".typed",
             );
-            if (!targetTyped) return;
-            const targetIndex = typedElements.indexOf(targetTyped);
+            const targetIndex = targetTyped
+                ? typedElements.indexOf(targetTyped)
+                : -1;
             if (targetIndex === -1) return;
 
             while (currentTypingIndex < targetIndex) {
