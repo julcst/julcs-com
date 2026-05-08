@@ -261,8 +261,8 @@ const { id, class: className, isIntro = false } = Astro.props;
         ".cv-empty",
     ];
     const TYPING_BLOCK_SELECTOR = TYPING_BLOCK_SELECTORS.join(", ");
-    const TYPING_CHUNK_SIZE = 4;
-    const TYPING_DELAY_MS = 8; // Short delay (ms) for snappy chunked typing.
+    const TYPING_CHUNK_SIZE = 4; // Characters per tick to keep typing smooth.
+    const TYPING_DELAY_MS = 8; // Short delay (ms) between chunks for snappy typing.
     const HASH_LINK_SELECTOR = 'a[href^="#"]';
     const yieldToEventLoop = () =>
         new Promise<void>((resolve) => setTimeout(resolve, 0));
@@ -310,6 +310,7 @@ const { id, class: className, isIntro = false } = Astro.props;
         }
     }
 
+    // Find the closest ancestor block to reveal while typing.
     function findTypingBlock(node: Node, rootNode: HTMLElement): HTMLElement | null {
         let current = node.parentElement;
         while (current && current !== rootNode) {
