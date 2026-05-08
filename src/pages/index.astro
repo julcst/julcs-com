@@ -8,6 +8,7 @@ import CvSection from "../components/CvSection.astro";
 import { parse } from "yaml";
 import cvYamlRaw from "../../_CV.yaml?raw";
 
+/** UI-ready entry shown within a CV section on the homepage. */
 interface CvSectionEntry {
     title: string;
     date: string;
@@ -21,11 +22,50 @@ interface ContactItem {
     href?: string;
 }
 
+interface CvEducationEntry extends Record<string, unknown> {
+    institution?: string;
+    area?: string;
+    degree?: string;
+    start_date?: string;
+    end_date?: string;
+    highlights?: unknown;
+}
+
+interface CvExperienceEntry extends Record<string, unknown> {
+    company?: string;
+    position?: string;
+    location?: string;
+    start_date?: string;
+    end_date?: string;
+    highlights?: unknown;
+}
+
+interface CvProjectEntry extends Record<string, unknown> {
+    name?: string;
+    start_date?: string;
+    end_date?: string;
+    highlights?: unknown;
+}
+
+interface CvPublicationEntry extends Record<string, unknown> {
+    title?: string;
+    date?: string;
+    authors?: unknown;
+    venue?: string;
+    doi?: string;
+}
+
+interface CvSocialEntry extends Record<string, unknown> {
+    network?: string;
+    username?: string;
+    url?: string;
+}
+
 interface CvSections {
-    education?: unknown;
-    experience?: unknown;
-    projects?: unknown;
-    publications?: unknown;
+    education?: CvEducationEntry[];
+    experience?: CvExperienceEntry[];
+    projects?: CvProjectEntry[];
+    publications?: CvPublicationEntry[];
 }
 
 interface CvProfile {
@@ -33,7 +73,7 @@ interface CvProfile {
     email?: string;
     location?: string;
     website?: string;
-    social_networks?: unknown;
+    social_networks?: CvSocialEntry[];
     sections?: CvSections;
 }
 
@@ -98,11 +138,13 @@ function formatDateRange(start: unknown, end: unknown): string {
     return `${startText} – ${endText}`;
 }
 
-function normalizeEntryArray(value: unknown): Array<Record<string, unknown>> {
+function normalizeEntryArray<T extends Record<string, unknown>>(
+    value: unknown,
+): T[] {
     if (!Array.isArray(value)) return [];
-    return value.filter((item) => item && typeof item === "object") as Array<
-        Record<string, unknown>
-    >;
+    return value.filter(
+        (item): item is T => Boolean(item) && typeof item === "object",
+    );
 }
 
 function normalizeStringArray(value: unknown): string[] {
@@ -122,7 +164,7 @@ function formatMetaLine(values: unknown[]): string {
 }
 
 function buildEducationEntries(items: unknown): CvSectionEntry[] {
-    return normalizeEntryArray(items)
+    return normalizeEntryArray<CvEducationEntry>(items)
         .map((item) => {
             const title = normalizeText(item.institution);
             const date = formatDateRange(item.start_date, item.end_date);
@@ -138,7 +180,7 @@ function buildEducationEntries(items: unknown): CvSectionEntry[] {
 }
 
 function buildExperienceEntries(items: unknown): CvSectionEntry[] {
-    return normalizeEntryArray(items)
+    return normalizeEntryArray<CvExperienceEntry>(items)
         .map((item) => {
             const title = normalizeText(item.position);
             const date = formatDateRange(item.start_date, item.end_date);
@@ -151,7 +193,7 @@ function buildExperienceEntries(items: unknown): CvSectionEntry[] {
 }
 
 function buildProjectEntries(items: unknown): CvSectionEntry[] {
-    return normalizeEntryArray(items)
+    return normalizeEntryArray<CvProjectEntry>(items)
         .map((item) => {
             const title = normalizeText(item.name);
             const date = formatDateRange(item.start_date, item.end_date);
@@ -163,7 +205,7 @@ function buildProjectEntries(items: unknown): CvSectionEntry[] {
 }
 
 function buildPublicationEntries(items: unknown): CvSectionEntry[] {
-    return normalizeEntryArray(items)
+    return normalizeEntryArray<CvPublicationEntry>(items)
         .map((item) => {
             const title = normalizeText(item.title);
             const date = formatDate(item.date);
@@ -220,7 +262,7 @@ function buildContactItems(profile: CvProfile | null): ContactItem[] {
         });
     }
 
-    const socials = normalizeEntryArray(profile.social_networks);
+    const socials = normalizeEntryArray<CvSocialEntry>(profile.social_networks);
     socials.forEach((item) => {
         const network = normalizeText(item.network);
         const username = normalizeText(item.username);
