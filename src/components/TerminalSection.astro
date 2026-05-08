@@ -318,7 +318,7 @@ const { id, class: className, isIntro = false } = Astro.props;
     }
 
     async function typeNode(rootNode: HTMLElement): Promise<void> {
-        return new Promise(async (resolve) => {
+        return new Promise((resolve) => {
             const textNodes: {
                 node: Node;
                 originalText: string;
@@ -326,6 +326,12 @@ const { id, class: className, isIntro = false } = Astro.props;
             }[] = [];
             const hiddenBlocks = new Set<HTMLElement>();
             let isCancelled = false;
+            let hasResolved = false;
+            const finish = () => {
+                if (hasResolved) return;
+                hasResolved = true;
+                resolve();
+            };
             cancelCurrentTyping = () => {
                 if (isCancelled) return;
                 isCancelled = true;
@@ -338,7 +344,7 @@ const { id, class: className, isIntro = false } = Astro.props;
                 hiddenBlocks.forEach((block) => {
                     block.removeAttribute("data-typing-hidden");
                 });
-                resolve();
+                finish();
             };
 
             function collectAndClear(node: Node) {
@@ -346,7 +352,20 @@ const { id, class: className, isIntro = false } = Astro.props;
                     const text = node.textContent || "";
 
                     if (text.trim().length === 0) {
-                        node.textContent = "";
+                        if (text === " ") {
+                            const block = findTypingBlock(node, rootNode);
+                            if (block) {
+                                hiddenBlocks.add(block);
+                            }
+                            textNodes.push({
+                                node,
+                                originalText: text,
+                                block,
+                            });
+                            node.textContent = "";
+                        } else {
+                            node.textContent = "";
+                        }
                         return;
                     }
 
@@ -366,32 +385,38 @@ const { id, class: className, isIntro = false } = Astro.props;
                 block.setAttribute("data-typing-hidden", "true");
             });
 
-            for (const item of textNodes) {
-                if (isCancelled) break;
-                if (item.block) {
-                    item.block.removeAttribute("data-typing-hidden");
-                }
-                for (
-                    let i = 0;
-                    i <= item.originalText.length;
-                    i += TYPING_CHUNK_SIZE
-                ) {
+            const runTyping = async () => {
+                for (const item of textNodes) {
                     if (isCancelled) break;
-                    const nextIndex = i + TYPING_CHUNK_SIZE;
-                    item.node.textContent = item.originalText.slice(
-                        0,
-                        nextIndex,
-                    );
-                    if (globalCursor) {
-                        item.node.after(globalCursor);
+                    if (item.block) {
+                        item.block.removeAttribute("data-typing-hidden");
                     }
-                    await new Promise((r) => setTimeout(r, TYPING_DELAY_MS));
+                    for (
+                        let i = 0;
+                        i <= item.originalText.length;
+                        i += TYPING_CHUNK_SIZE
+                    ) {
+                        if (isCancelled) break;
+                        const nextIndex = i + TYPING_CHUNK_SIZE;
+                        item.node.textContent = item.originalText.slice(
+                            0,
+                            nextIndex,
+                        );
+                        if (globalCursor) {
+                            item.node.after(globalCursor);
+                        }
+                        await new Promise((r) =>
+                            setTimeout(r, TYPING_DELAY_MS),
+                        );
+                    }
                 }
-            }
-            hiddenBlocks.forEach((block) => {
-                block.removeAttribute("data-typing-hidden");
-            });
-            resolve();
+                hiddenBlocks.forEach((block) => {
+                    block.removeAttribute("data-typing-hidden");
+                });
+                finish();
+            };
+
+            void runTyping();
         });
     }
 
@@ -402,6 +427,7 @@ const { id, class: className, isIntro = false } = Astro.props;
 
         if (isTyping) {
             cancelCurrentTyping();
+            // Yield so the cancelled typing run can flush its updates.
             await new Promise((r) => setTimeout(r, 0));
         }
 
