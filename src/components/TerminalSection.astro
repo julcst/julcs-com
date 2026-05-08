@@ -262,8 +262,10 @@ const { id, class: className, isIntro = false } = Astro.props;
     ];
     const TYPING_BLOCK_SELECTOR = TYPING_BLOCK_SELECTORS.join(", ");
     const TYPING_CHUNK_SIZE = 4;
-    const TYPING_DELAY_MS = 8;
+    const TYPING_DELAY_MS = 8; // Short delay (ms) for snappy chunked typing.
     const HASH_LINK_SELECTOR = 'a[href^="#"]';
+    const yieldToEventLoop = () =>
+        new Promise<void>((resolve) => setTimeout(resolve, 0));
 
     // Initialize all sections as hidden/ready
     typedElements.forEach((el) => {
@@ -397,7 +399,10 @@ const { id, class: className, isIntro = false } = Astro.props;
                         i += TYPING_CHUNK_SIZE
                     ) {
                         if (isCancelled) break;
-                        const nextIndex = i + TYPING_CHUNK_SIZE;
+                        const nextIndex = Math.min(
+                            i + TYPING_CHUNK_SIZE,
+                            item.originalText.length,
+                        );
                         item.node.textContent = item.originalText.slice(
                             0,
                             nextIndex,
@@ -428,7 +433,7 @@ const { id, class: className, isIntro = false } = Astro.props;
         if (isTyping) {
             cancelCurrentTyping();
             // Yield so the cancelled typing run can flush its updates.
-            await new Promise((r) => setTimeout(r, 0));
+            await yieldToEventLoop();
         }
 
         const endIndex = Math.min(targetIndex, typedElements.length - 1);
