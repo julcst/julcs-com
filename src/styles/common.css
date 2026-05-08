@@ -44,14 +44,6 @@ body {
 }
 
 h1 {
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  letter-spacing: var(--letter-spacing-tight);
-  line-height: var(--line-height-tight);
-  margin: 0 0 var(--space-2);
-}
-
-h1 {
   font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
