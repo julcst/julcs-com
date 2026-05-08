@@ -139,7 +139,7 @@ function formatDateRange(start: unknown, end: unknown): string {
 }
 
 function normalizeEntryArray<T extends Record<string, unknown>>(
-    value: T[] | undefined | null,
+    value: T[] | undefined,
 ): T[] {
     if (!Array.isArray(value)) return [];
     return value.filter((item) => item && typeof item === "object");
@@ -324,7 +324,7 @@ const sectionLinks: SectionLink[] = sectionLinkConfigs
 
     <!-- Scrollable Content Area -->
     <div class="scroll-container">
-        <TerminalSection id="cv">
+        <TerminalSection id="cv" class="content-box">
             {
                 hasCvYaml ? (
                     <div class="cv-body">
@@ -372,7 +372,7 @@ const sectionLinks: SectionLink[] = sectionLinkConfigs
 
         {
             hasProjectsYaml ? (
-                <TerminalSection id="projects">
+                <TerminalSection id="projects" class="content-box">
                     <div class="cv-body">
                         <CvSection title="Projects" entries={projectEntries} />
                     </div>
@@ -380,13 +380,13 @@ const sectionLinks: SectionLink[] = sectionLinkConfigs
             ) : null
         }
 
-        <TerminalSection id="tools">
+        <TerminalSection id="tools" class="content-box">
             <ToolsContent />
         </TerminalSection>
 
         {
             hasPublications ? (
-                <TerminalSection id="publications">
+                <TerminalSection id="publications" class="content-box">
                     <div class="cv-body">
                         <CvSection
                             title="Publications"
