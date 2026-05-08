@@ -5,8 +5,6 @@ import sitemap from '@astrojs/sitemap';
 
 import favicons from 'astro-favicons';
 
-import cloudflare from '@astrojs/cloudflare';
-
 // https://astro.build/config
 export default defineConfig(({ command }) => {
   const integrations = [sitemap()];
@@ -17,12 +15,12 @@ export default defineConfig(({ command }) => {
   return {
     site: 'https://julcs.com',
 
+    output: 'static',
     build: {
       format: 'file'
     },
 
     integrations,
-    adapter: cloudflare(),
     vite: {
       optimizeDeps: {
         exclude: ['astro-favicons', 'virtual:astro-favicons']
