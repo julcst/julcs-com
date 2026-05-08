@@ -8,6 +8,48 @@ import CvSection from "../components/CvSection.astro";
 import { parse } from "yaml";
 import cvYamlRaw from "../../_CV.yaml?raw";
 
+interface CvSectionEntry {
+    title: string;
+    date: string;
+    meta: string;
+    details: string[];
+}
+
+interface ContactItem {
+    label: string;
+    value: string;
+    href?: string;
+}
+
+interface CvSections {
+    education?: unknown;
+    experience?: unknown;
+    projects?: unknown;
+    publications?: unknown;
+}
+
+interface CvProfile {
+    name?: string;
+    email?: string;
+    location?: string;
+    website?: string;
+    social_networks?: unknown;
+    sections?: CvSections;
+}
+
+interface CvYaml {
+    cv?: CvProfile;
+}
+
+interface SectionLink {
+    id: string;
+    label: string;
+}
+
+interface SectionLinkConfig extends SectionLink {
+    show: boolean;
+}
+
 // Fetch all entries
 const intro = await getEntry("pages", "index");
 const tools = await getEntry("pages", "tools");
@@ -32,7 +74,7 @@ const monthNames = [
     "Dec",
 ];
 
-function formatDate(value) {
+function formatDate(value: unknown): string {
     if (!value) return "";
     if (typeof value === "string" && value.toLowerCase() === "present")
         return "present";
@@ -47,7 +89,7 @@ function formatDate(value) {
     return `${monthNames[month - 1]} ${year}`;
 }
 
-function formatDateRange(start, end) {
+function formatDateRange(start: unknown, end: unknown): string {
     const startText = formatDate(start);
     const endText = formatDate(end);
     if (!startText && !endText) return "";
@@ -56,28 +98,30 @@ function formatDateRange(start, end) {
     return `${startText} – ${endText}`;
 }
 
-function normalizeEntryArray(value) {
+function normalizeEntryArray(value: unknown): Array<Record<string, unknown>> {
     if (!Array.isArray(value)) return [];
-    return value.filter((item) => item && typeof item === "object");
+    return value.filter((item) => item && typeof item === "object") as Array<
+        Record<string, unknown>
+    >;
 }
 
-function normalizeStringArray(value) {
+function normalizeStringArray(value: unknown): string[] {
     if (!Array.isArray(value)) return [];
     return value
         .filter((item) => item !== null && item !== undefined)
         .map((item) => (typeof item === "string" ? item : String(item)));
 }
 
-function normalizeText(value) {
+function normalizeText(value: unknown): string {
     if (value === null || value === undefined) return "";
     return typeof value === "string" ? value : String(value);
 }
 
-function formatMetaLine(values) {
+function formatMetaLine(values: unknown[]): string {
     return values.map(normalizeText).filter(Boolean).join(" · ");
 }
 
-function buildEducationEntries(items) {
+function buildEducationEntries(items: unknown): CvSectionEntry[] {
     return normalizeEntryArray(items)
         .map((item) => {
             const title = normalizeText(item.institution);
@@ -93,7 +137,7 @@ function buildEducationEntries(items) {
         .filter((entry) => entry.title);
 }
 
-function buildExperienceEntries(items) {
+function buildExperienceEntries(items: unknown): CvSectionEntry[] {
     return normalizeEntryArray(items)
         .map((item) => {
             const title = normalizeText(item.position);
@@ -106,7 +150,7 @@ function buildExperienceEntries(items) {
         .filter((entry) => entry.title);
 }
 
-function buildProjectEntries(items) {
+function buildProjectEntries(items: unknown): CvSectionEntry[] {
     return normalizeEntryArray(items)
         .map((item) => {
             const title = normalizeText(item.name);
@@ -118,7 +162,7 @@ function buildProjectEntries(items) {
         .filter((entry) => entry.title);
 }
 
-function buildPublicationEntries(items) {
+function buildPublicationEntries(items: unknown): CvSectionEntry[] {
     return normalizeEntryArray(items)
         .map((item) => {
             const title = normalizeText(item.title);
@@ -134,10 +178,10 @@ function buildPublicationEntries(items) {
         .filter((entry) => entry.title);
 }
 
-let yamlSections = null;
-let yamlProfile = null;
+let yamlSections: CvSections | null = null;
+let yamlProfile: CvProfile | null = null;
 try {
-    const cvYaml = parse(cvYamlRaw);
+    const cvYaml = parse(cvYamlRaw) as CvYaml;
     yamlSections = cvYaml?.cv?.sections ?? null;
     yamlProfile = cvYaml?.cv ?? null;
 } catch (e) {
@@ -154,9 +198,9 @@ const hasCvYaml = educationEntries.length > 0 || experienceEntries.length > 0;
 const hasProjectsYaml = projectEntries.length > 0;
 const hasPublications = publicationEntries.length > 0;
 
-function buildContactItems(profile) {
+function buildContactItems(profile: CvProfile | null): ContactItem[] {
     if (!profile) return [];
-    const items = [];
+    const items: ContactItem[] = [];
 
     if (profile.email) {
         items.push({
@@ -198,35 +242,41 @@ const contactItems = buildContactItems(yamlProfile);
 
 const today = new Date();
 const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
+
+const sectionLinkConfigs: SectionLinkConfig[] = [
+    { id: "cv", label: "cv", show: true },
+    { id: "projects", label: "projects", show: hasProjectsYaml },
+    { id: "publications", label: "publications", show: hasPublications },
+    { id: "tools", label: "tools", show: true },
+];
+
+const sectionLinks: SectionLink[] = sectionLinkConfigs
+    .filter((section) => section.show)
+    .map(({ id, label }) => ({ id, label }));
 ---
 
 <Layout title={intro.data.title} description={intro.data.description}>
     <BackgroundSketch />
 
     <!-- Fixed Intro Box (Collapses to Header) -->
-    <TerminalSection isIntro={true}>
+    <TerminalSection isIntro={true} navLinks={sectionLinks}>
         <IntroContent />
         <p>
-            <a href="#cv">&gt; cv</a><br />
-            <a href="#projects">&gt; projects</a><br />
-            {
-                hasPublications ? (
-                    <>
-                        <>
-                            <a href="#publications">&gt; publications</a>
-                            <br />
-                        </>
-                    </>
-                ) : null
-            }
-            <a href="#tools">&gt; tools</a>
+            {sectionLinks.map((section, index) => (
+                <>
+                    <a href={`#${section.id}`} class="nav-btn">
+                        &gt; {section.label}
+                    </a>
+                    {index < sectionLinks.length - 1 ? <br /> : null}
+                </>
+            ))}
         </p>
         <p>{dateStr} - julcs</p>
     </TerminalSection>
 
     <!-- Scrollable Content Area -->
     <div class="scroll-container">
-        <TerminalSection id="cv" class="content-box">
+        <TerminalSection id="cv">
             {
                 hasCvYaml ? (
                     <div class="cv-body">
@@ -272,23 +322,23 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFul
             }
         </TerminalSection>
 
-        <TerminalSection id="projects" class="content-box">
-            {
-                hasProjectsYaml ? (
+        {
+            hasProjectsYaml ? (
+                <TerminalSection id="projects">
                     <div class="cv-body">
                         <CvSection title="Projects" entries={projectEntries} />
                     </div>
-                ) : null
-            }
-        </TerminalSection>
+                </TerminalSection>
+            ) : null
+        }
 
-        <TerminalSection id="tools" class="content-box">
+        <TerminalSection id="tools">
             <ToolsContent />
         </TerminalSection>
 
         {
             hasPublications ? (
-                <TerminalSection id="publications" class="content-box">
+                <TerminalSection id="publications">
                     <div class="cv-body">
                         <CvSection
                             title="Publications"
