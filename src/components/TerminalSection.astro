@@ -242,6 +242,7 @@ const { id, class: className, isIntro = false } = Astro.props;
     );
     let currentTypingIndex = 0;
     let isTyping = false;
+    // Incremented to invalidate in-flight typing when skipping ahead.
     let typingRunId = 0;
     let cancelCurrentTyping = () => {};
     const TYPING_BLOCK_SELECTORS = [
@@ -261,6 +262,7 @@ const { id, class: className, isIntro = false } = Astro.props;
         ".cv-empty",
     ];
     const TYPING_BLOCK_SELECTOR = TYPING_BLOCK_SELECTORS.join(", ");
+    // Tune these to balance typing speed with smoothness.
     const TYPING_CHUNK_SIZE = 4; // Characters per tick to keep typing smooth.
     const TYPING_DELAY_MS = 8; // Short delay (ms) between chunks for snappy typing.
     const HASH_LINK_SELECTOR = 'a[href^="#"]';
@@ -354,21 +356,21 @@ const { id, class: className, isIntro = false } = Astro.props;
                 if (node.nodeType === Node.TEXT_NODE) {
                     const text = node.textContent || "";
 
-                    if (text.trim().length === 0) {
-                        if (text === " ") {
-                            const block = findTypingBlock(node, rootNode);
-                            if (block) {
-                                hiddenBlocks.add(block);
-                            }
-                            textNodes.push({
-                                node,
-                                originalText: text,
-                                block,
-                            });
-                            node.textContent = "";
-                        } else {
-                            node.textContent = "";
+                    if (text === " ") {
+                        const block = findTypingBlock(node, rootNode);
+                        if (block) {
+                            hiddenBlocks.add(block);
                         }
+                        textNodes.push({
+                            node,
+                            originalText: text,
+                            block,
+                        });
+                        node.textContent = "";
+                        return;
+                    }
+                    if (text.trim().length === 0) {
+                        node.textContent = "";
                         return;
                     }
 
@@ -433,7 +435,7 @@ const { id, class: className, isIntro = false } = Astro.props;
 
         if (isTyping) {
             cancelCurrentTyping();
-            // Yield so the cancelled typing run can flush its updates.
+            // Yield so the cancelled typing run can finish cleanup before skipping.
             await yieldToEventLoop();
         }
 
