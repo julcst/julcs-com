@@ -10,14 +10,11 @@ import cvYamlRaw from "../../_CV.yaml?raw";
 
 // Fetch all entries
 const intro = await getEntry("pages", "index");
-const projects = await getEntry("pages", "projects");
 const tools = await getEntry("pages", "tools");
 
-if (!intro || !projects || !tools)
-    throw new Error("Could not find all content entries");
+if (!intro || !tools) throw new Error("Could not find all content entries");
 
 const { Content: IntroContent } = await render(intro);
-const { Content: ProjectsContent } = await render(projects);
 const { Content: ToolsContent } = await render(tools);
 
 const monthNames = [
@@ -210,19 +207,19 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFul
     <TerminalSection isIntro={true}>
         <IntroContent />
         <p>
-            <a href="#cv">&gt; View CV</a><br />
-            <a href="#projects">&gt; View Projects</a><br />
+            <a href="#cv">&gt; cv</a><br />
+            <a href="#projects">&gt; projects</a><br />
             {
                 hasPublications ? (
                     <>
                         <>
-                            <a href="#publications">&gt; View Publications</a>
+                            <a href="#publications">&gt; publications</a>
                             <br />
                         </>
                     </>
                 ) : null
             }
-            <a href="#tools">&gt; View Tools</a>
+            <a href="#tools">&gt; tools</a>
         </p>
         <p>{dateStr} - julcs</p>
     </TerminalSection>
@@ -281,9 +278,7 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFul
                     <div class="cv-body">
                         <CvSection title="Projects" entries={projectEntries} />
                     </div>
-                ) : (
-                    <ProjectsContent />
-                )
+                ) : null
             }
         </TerminalSection>
 

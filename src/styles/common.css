@@ -51,6 +51,19 @@ h1 {
   margin: 0 0 var(--space-2);
 }
 
+h1 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  margin: 0 0 0.4rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.8;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 h2 {
   font-size: var(--font-size-lg);
   font-weight: 700;
