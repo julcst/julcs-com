@@ -291,7 +291,7 @@ const shouldRenderNav = isIntro && navLinks.length > 0;
     }
 
     async function typeNode(rootNode: HTMLElement): Promise<void> {
-        return new Promise((resolve) => {
+        return new Promise(async (resolve) => {
             const textNodes: Array<{ node: Node; originalText: string }> = [];
             let isCancelled = false;
             cancelCurrentTyping = () => {
@@ -320,20 +320,18 @@ const shouldRenderNav = isIntro && navLinks.length > 0;
             collectAndClear(rootNode);
 
             const typeSpeed = 0.1;
-            const typeNext = async () => {
-                for (const item of textNodes) {
+            for (const item of textNodes) {
+                if (isCancelled) break;
+                for (let i = 0; i <= item.originalText.length; i++) {
                     if (isCancelled) break;
-                    for (let i = 0; i <= item.originalText.length; i++) {
-                        if (isCancelled) break;
-                        item.node.textContent = item.originalText.slice(0, i);
-                        if (globalCursor) {
-                            item.node.after(globalCursor);
-                        }
-                        await new Promise((r) => setTimeout(r, typeSpeed));
+                    item.node.textContent = item.originalText.slice(0, i);
+                    if (globalCursor) {
+                        item.node.after(globalCursor);
                     }
+                    await new Promise((r) => setTimeout(r, typeSpeed));
                 }
-            };
-            typeNext().then(resolve);
+            }
+            resolve();
         });
     }
 

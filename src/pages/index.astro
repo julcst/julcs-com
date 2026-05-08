@@ -138,14 +138,11 @@ function formatDateRange(start: unknown, end: unknown): string {
     return `${startText} – ${endText}`;
 }
 
-function normalizeEntryArray(
-    value: unknown,
-): Array<Record<string, unknown>> {
+function normalizeEntryArray<T extends Record<string, unknown>>(
+    value: T[] | undefined | null,
+): T[] {
     if (!Array.isArray(value)) return [];
-    return value.filter(
-        (item): item is Record<string, unknown> =>
-            Boolean(item) && typeof item === "object",
-    );
+    return value.filter((item) => Boolean(item) && typeof item === "object");
 }
 
 function normalizeStringArray(value: unknown): string[] {
