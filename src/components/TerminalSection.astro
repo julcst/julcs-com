@@ -216,7 +216,7 @@ const shouldRenderNav = isIntro && navLinks.length > 0;
         document.getElementById("global-cursor") as HTMLElement | null;
 
     // --- SCROLL & NAV LOGIC ---
-    const navLinks = Array.from(
+    const navLinkElements = Array.from(
         document.querySelectorAll<HTMLAnchorElement>(".nav-links a"),
     );
     const sections = Array.from(
@@ -238,7 +238,7 @@ const shouldRenderNav = isIntro && navLinks.length > 0;
             }
         });
 
-        navLinks.forEach((link) => {
+        navLinkElements.forEach((link) => {
             link.classList.remove("active");
             if (link.getAttribute("data-nav") === current) {
                 link.classList.add("active");
@@ -349,9 +349,8 @@ const shouldRenderNav = isIntro && navLinks.length > 0;
             const targetTyped = targetSection.querySelector<HTMLElement>(
                 ".typed",
             );
-            const targetIndex = typedElements.findIndex(
-                (node) => node === targetTyped,
-            );
+            if (!targetTyped) return;
+            const targetIndex = typedElements.indexOf(targetTyped);
             if (targetIndex === -1) return;
 
             while (currentTypingIndex < targetIndex) {
