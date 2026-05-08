@@ -244,8 +244,11 @@ const { id, class: className, isIntro = false } = Astro.props;
     let isTyping = false;
     let typingRunId = 0;
     let cancelCurrentTyping = () => {};
-    const typingBlockSelector =
+    const TYPING_BLOCK_SELECTOR =
         "p, li, h1, h2, h3, h4, h5, h6, .cv-entry-meta, .cv-entry-date, .cv-profile-name, .cv-profile-item, .cv-section-title, .cv-empty";
+    const TYPING_CHUNK_SIZE = 4;
+    const TYPING_DELAY_MS = 8;
+    const HASH_LINK_SELECTOR = 'a[href^="#"]';
 
     // Initialize all sections as hidden/ready
     typedElements.forEach((el) => {
@@ -293,7 +296,7 @@ const { id, class: className, isIntro = false } = Astro.props;
     function findTypingBlock(node: Node, rootNode: HTMLElement): HTMLElement | null {
         let current = node.parentElement;
         while (current && current !== rootNode) {
-            if (current.matches(typingBlockSelector)) return current;
+            if (current.matches(TYPING_BLOCK_SELECTOR)) return current;
             current = current.parentElement;
         }
         return null;
@@ -348,24 +351,26 @@ const { id, class: className, isIntro = false } = Astro.props;
                 block.setAttribute("data-typing-hidden", "true");
             });
 
-            const chunkSize = 4;
-            const typeDelay = 8;
             for (const item of textNodes) {
                 if (isCancelled) break;
                 if (item.block) {
                     item.block.removeAttribute("data-typing-hidden");
                 }
-                for (let i = 0; i <= item.originalText.length; i += chunkSize) {
+                for (
+                    let i = 0;
+                    i <= item.originalText.length;
+                    i += TYPING_CHUNK_SIZE
+                ) {
                     if (isCancelled) break;
                     const nextIndex = Math.min(
                         item.originalText.length,
-                        i + chunkSize,
+                        i + TYPING_CHUNK_SIZE,
                     );
                     item.node.textContent = item.originalText.slice(0, nextIndex);
                     if (globalCursor) {
                         item.node.after(globalCursor);
                     }
-                    await new Promise((r) => setTimeout(r, typeDelay));
+                    await new Promise((r) => setTimeout(r, TYPING_DELAY_MS));
                 }
             }
             hiddenBlocks.forEach((block) => {
@@ -395,8 +400,8 @@ const { id, class: className, isIntro = false } = Astro.props;
         tryStartNext();
     }
 
-    const sectionLinks = document.querySelectorAll('a[href^="#"]');
-    sectionLinks.forEach((link) => {
+    const hashLinks = document.querySelectorAll(HASH_LINK_SELECTOR);
+    hashLinks.forEach((link) => {
         link.addEventListener("click", async () => {
             const targetId = (link as HTMLAnchorElement)
                 .getAttribute("href")
