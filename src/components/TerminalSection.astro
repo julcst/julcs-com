@@ -35,9 +35,9 @@ const { id, class: className, isIntro = false } = Astro.props;
         )
     }
     <div class="terminal-frame">
-        <span class="typed">
+        <div class="typed">
             <slot />
-        </span>
+        </div>
     </div>
 </section>
 
@@ -49,6 +49,8 @@ const { id, class: className, isIntro = false } = Astro.props;
         background-color: var(--color-bg);
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
+        position: relative;
+        z-index: 1;
     }
 
     .intro-box {
@@ -172,15 +174,6 @@ const { id, class: className, isIntro = false } = Astro.props;
         display: block;
         white-space: normal;
         overflow-wrap: anywhere;
-    }
-
-    .typed :global(p),
-    .typed :global(ul),
-    .typed :global(li),
-    .typed :global(h1),
-    .typed :global(h2),
-    .typed :global(h3) {
-        white-space: normal;
     }
 
     @media (max-width: 800px) {
