@@ -6,10 +6,6 @@
 	"name": "julcs-com",
 	"pages_build_output_dir": "./dist",
 	"main": "@astrojs/cloudflare/entrypoints/server",
-	"assets": {
-		"directory": "./dist",
-		"binding": "ASSETS"
-	},
 	"observability": {
 		"enabled": true
 	}
