@@ -28,7 +28,7 @@ interface CvEducationEntry extends Record<string, unknown> {
     degree?: string;
     start_date?: string;
     end_date?: string;
-    highlights?: unknown;
+    highlights?: string[];
 }
 
 interface CvExperienceEntry extends Record<string, unknown> {
@@ -37,20 +37,20 @@ interface CvExperienceEntry extends Record<string, unknown> {
     location?: string;
     start_date?: string;
     end_date?: string;
-    highlights?: unknown;
+    highlights?: string[];
 }
 
 interface CvProjectEntry extends Record<string, unknown> {
     name?: string;
     start_date?: string;
     end_date?: string;
-    highlights?: unknown;
+    highlights?: string[];
 }
 
 interface CvPublicationEntry extends Record<string, unknown> {
     title?: string;
     date?: string;
-    authors?: unknown;
+    authors?: string[];
     venue?: string;
     doi?: string;
 }

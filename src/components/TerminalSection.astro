@@ -351,7 +351,6 @@ const shouldRenderNav = isIntro && navLinks.length > 0;
             );
             if (!targetTyped) return;
             const targetIndex = typedElements.indexOf(targetTyped);
-            if (targetIndex === -1) return;
 
             while (currentTypingIndex < targetIndex) {
                 if (isTyping) {
