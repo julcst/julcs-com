@@ -175,6 +175,10 @@ const { id, class: className, isIntro = false } = Astro.props;
         white-space: normal;
         overflow-wrap: anywhere;
     }
+    
+    .typed [data-typing-hidden="true"] {
+        display: none;
+    }
 
     @media (max-width: 800px) {
         .content-box {
@@ -233,9 +237,15 @@ const { id, class: className, isIntro = false } = Astro.props;
     const typedElements = Array.from(
         document.getElementsByClassName("typed"),
     ) as HTMLElement[];
+    const typedElementIndex = new Map(
+        typedElements.map((node, index) => [node, index]),
+    );
     let currentTypingIndex = 0;
     let isTyping = false;
+    let typingRunId = 0;
     let cancelCurrentTyping = () => {};
+    const typingBlockSelector =
+        "p, li, h1, h2, h3, h4, h5, h6, .cv-entry-meta, .cv-entry-date, .cv-profile-name, .cv-profile-item, .cv-section-title, .cv-empty";
 
     // Initialize all sections as hidden/ready
     typedElements.forEach((el) => {
@@ -248,7 +258,12 @@ const { id, class: className, isIntro = false } = Astro.props;
                 if (entry.isIntersecting) {
                     const node = entry.target as HTMLElement;
                     node.dataset.visible = "true";
-                    tryStartNext();
+                    const index = typedElementIndex.get(node);
+                    if (index !== undefined && index > currentTypingIndex) {
+                        void revealThrough(index);
+                    } else {
+                        tryStartNext();
+                    }
                 }
             });
         },
@@ -265,23 +280,45 @@ const { id, class: className, isIntro = false } = Astro.props;
 
         if (nextNode.dataset.visible === "true" || currentTypingIndex === 0) {
             isTyping = true;
+            const runId = typingRunId;
             nextNode.style.opacity = "1";
             await typeNode(nextNode);
+            if (runId !== typingRunId) return;
             isTyping = false;
             currentTypingIndex++;
             tryStartNext();
         }
     }
 
+    function findTypingBlock(node: Node, rootNode: HTMLElement): HTMLElement | null {
+        let current = node.parentElement;
+        while (current && current !== rootNode) {
+            if (current.matches(typingBlockSelector)) return current;
+            current = current.parentElement;
+        }
+        return null;
+    }
+
     async function typeNode(rootNode: HTMLElement): Promise<void> {
         return new Promise(async (resolve) => {
-            const textNodes: { node: Node; originalText: string }[] = [];
+            const textNodes: {
+                node: Node;
+                originalText: string;
+                block: HTMLElement | null;
+            }[] = [];
+            const hiddenBlocks = new Set<HTMLElement>();
             let isCancelled = false;
             cancelCurrentTyping = () => {
+                if (isCancelled) return;
                 isCancelled = true;
+                typingRunId++;
+                isTyping = false;
                 // Force show everything immediately
                 textNodes.forEach((item) => {
                     item.node.textContent = item.originalText;
+                });
+                hiddenBlocks.forEach((block) => {
+                    block.removeAttribute("data-typing-hidden");
                 });
                 resolve();
             };
@@ -290,11 +327,16 @@ const { id, class: className, isIntro = false } = Astro.props;
                 if (node.nodeType === Node.TEXT_NODE) {
                     const text = node.textContent || "";
 
-                    // HEURISTIC: Skip nodes that are purely indentation (contain newlines and are just whitespace)
-                    // but PRESERVE single spaces between words/tags.
-                    if (text.trim().length === 0 && text.includes("\n")) return;
+                    if (text.trim().length === 0) {
+                        node.textContent = "";
+                        return;
+                    }
 
-                    textNodes.push({ node, originalText: text });
+                    const block = findTypingBlock(node, rootNode);
+                    if (block) {
+                        hiddenBlocks.add(block);
+                    }
+                    textNodes.push({ node, originalText: text, block });
                     node.textContent = "";
                 } else {
                     Array.from(node.childNodes).forEach(collectAndClear);
@@ -302,27 +344,61 @@ const { id, class: className, isIntro = false } = Astro.props;
             }
             collectAndClear(rootNode);
 
-            const typeSpeed = 0.1;
+            hiddenBlocks.forEach((block) => {
+                block.setAttribute("data-typing-hidden", "true");
+            });
+
+            const chunkSize = 4;
+            const typeDelay = 8;
             for (const item of textNodes) {
                 if (isCancelled) break;
-                for (let i = 0; i <= item.originalText.length; i++) {
+                if (item.block) {
+                    item.block.removeAttribute("data-typing-hidden");
+                }
+                for (let i = 0; i <= item.originalText.length; i += chunkSize) {
                     if (isCancelled) break;
-                    item.node.textContent = item.originalText.slice(0, i);
+                    const nextIndex = Math.min(
+                        item.originalText.length,
+                        i + chunkSize,
+                    );
+                    item.node.textContent = item.originalText.slice(0, nextIndex);
                     if (globalCursor) {
                         item.node.after(globalCursor);
                     }
-                    await new Promise((r) => setTimeout(r, typeSpeed));
+                    await new Promise((r) => setTimeout(r, typeDelay));
                 }
             }
+            hiddenBlocks.forEach((block) => {
+                block.removeAttribute("data-typing-hidden");
+            });
             resolve();
         });
     }
 
     // --- SKIP LOGIC ---
-    const navButtons = document.querySelectorAll(".nav-btn");
-    navButtons.forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-            const targetId = (btn as HTMLAnchorElement)
+    async function revealThrough(targetIndex: number) {
+        if (targetIndex < 0) return;
+        if (targetIndex < currentTypingIndex) return;
+
+        if (isTyping) {
+            cancelCurrentTyping();
+            await new Promise((r) => setTimeout(r, 0));
+        }
+
+        const endIndex = Math.min(targetIndex, typedElements.length - 1);
+        while (currentTypingIndex <= endIndex) {
+            const node = typedElements[currentTypingIndex];
+            node.style.opacity = "1";
+            node.dataset.visible = "true";
+            currentTypingIndex++;
+        }
+        tryStartNext();
+    }
+
+    const sectionLinks = document.querySelectorAll('a[href^="#"]');
+    sectionLinks.forEach((link) => {
+        link.addEventListener("click", async () => {
+            const targetId = (link as HTMLAnchorElement)
                 .getAttribute("href")
                 ?.substring(1);
             if (!targetId) return;
@@ -331,20 +407,12 @@ const { id, class: className, isIntro = false } = Astro.props;
             if (!targetSection) return;
             const targetTyped = targetSection.querySelector(
                 ".typed",
-            ) as HTMLElement;
-            const targetIndex = typedElements.indexOf(targetTyped);
+            ) as HTMLElement | null;
+            if (!targetTyped) return;
+            const targetIndex = typedElementIndex.get(targetTyped);
+            if (targetIndex === undefined) return;
 
-            while (currentTypingIndex < targetIndex) {
-                if (isTyping) {
-                    cancelCurrentTyping();
-                    await new Promise((r) => setTimeout(r, 20));
-                }
-
-                const node = typedElements[currentTypingIndex];
-                node.style.opacity = "1";
-                currentTypingIndex++;
-            }
-            tryStartNext();
+            await revealThrough(targetIndex);
         });
     });
 
