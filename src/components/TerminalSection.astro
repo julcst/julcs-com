@@ -262,7 +262,8 @@ const { id, class: className, isIntro = false } = Astro.props;
         ".cv-empty",
     ];
     const TYPING_BLOCK_SELECTOR = TYPING_BLOCK_SELECTORS.join(", ");
-    // Tune these to balance typing speed with smoothness.
+    // Tune these to balance typing speed with smoothness:
+    // larger chunks or shorter delays speed up typing; smaller chunks slow it down.
     const TYPING_CHUNK_SIZE = 4; // Characters per tick to keep typing smooth.
     const TYPING_DELAY_MS = 8; // Short delay (ms) between chunks for snappy typing.
     const HASH_LINK_SELECTOR = 'a[href^="#"]';
@@ -305,7 +306,10 @@ const { id, class: className, isIntro = false } = Astro.props;
             const runId = typingRunId;
             nextNode.style.opacity = "1";
             await typeNode(nextNode);
-            if (runId !== typingRunId) return;
+            if (runId !== typingRunId) {
+                isTyping = false;
+                return;
+            }
             isTyping = false;
             currentTypingIndex++;
             tryStartNext();
@@ -429,24 +433,43 @@ const { id, class: className, isIntro = false } = Astro.props;
     }
 
     // --- SKIP LOGIC ---
+    let isRevealing = false;
+    let pendingRevealIndex: number | null = null;
     async function revealThrough(targetIndex: number) {
+        if (isRevealing) {
+            pendingRevealIndex =
+                pendingRevealIndex === null
+                    ? targetIndex
+                    : Math.max(pendingRevealIndex, targetIndex);
+            return;
+        }
         if (targetIndex < 0) return;
         if (targetIndex < currentTypingIndex) return;
 
-        if (isTyping) {
-            cancelCurrentTyping();
-            // Yield so the cancelled typing run can finish cleanup before skipping.
-            await yieldToEventLoop();
-        }
+        isRevealing = true;
+        try {
+            if (isTyping) {
+                cancelCurrentTyping();
+                // Yield so the cancelled typing run can finish cleanup before skipping.
+                await yieldToEventLoop();
+            }
 
-        const endIndex = Math.min(targetIndex, typedElements.length - 1);
-        while (currentTypingIndex <= endIndex) {
-            const node = typedElements[currentTypingIndex];
-            node.style.opacity = "1";
-            node.dataset.visible = "true";
-            currentTypingIndex++;
+            const endIndex = Math.min(targetIndex, typedElements.length - 1);
+            while (currentTypingIndex <= endIndex) {
+                const node = typedElements[currentTypingIndex];
+                node.style.opacity = "1";
+                node.dataset.visible = "true";
+                currentTypingIndex++;
+            }
+            tryStartNext();
+        } finally {
+            isRevealing = false;
+            if (pendingRevealIndex !== null) {
+                const nextIndex = pendingRevealIndex;
+                pendingRevealIndex = null;
+                await revealThrough(nextIndex);
+            }
         }
-        tryStartNext();
     }
 
     const anchorLinks = document.querySelectorAll(HASH_LINK_SELECTOR);
