@@ -349,8 +349,9 @@ const shouldRenderNav = isIntro && navLinks.length > 0;
             const targetTyped = targetSection.querySelector<HTMLElement>(
                 ".typed",
             );
-            if (!targetTyped) return;
-            const targetIndex = typedElements.indexOf(targetTyped);
+            const targetIndex = typedElements.findIndex(
+                (node) => node === targetTyped,
+            );
             if (targetIndex === -1) return;
 
             while (currentTypingIndex < targetIndex) {
