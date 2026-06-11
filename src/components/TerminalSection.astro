@@ -3,9 +3,16 @@ interface Props {
     id?: string;
     class?: string;
     isIntro?: boolean;
+    navLinks?: { label: string; href: string; dataNav: string }[];
 }
 
-const { id, class: className, isIntro = false } = Astro.props;
+const { id, class: className, isIntro = false, navLinks = [] } = Astro.props;
+const defaultNavLinks = [
+    { label: "cv", href: "#cv", dataNav: "cv" },
+    { label: "projects", href: "#projects", dataNav: "projects" },
+    { label: "tools", href: "#tools", dataNav: "tools" },
+];
+const resolvedNavLinks = navLinks.length > 0 ? navLinks : defaultNavLinks;
 ---
 
 <section
@@ -21,15 +28,15 @@ const { id, class: className, isIntro = false } = Astro.props;
             <nav class="header-nav">
                 <span class="site-title">julcs.com</span>
                 <div class="nav-links">
-                    <a href="#cv" data-nav="cv" class="nav-btn">
-                        cv
-                    </a>
-                    <a href="#projects" data-nav="projects" class="nav-btn">
-                        projects
-                    </a>
-                    <a href="#tools" data-nav="tools" class="nav-btn">
-                        tools
-                    </a>
+                    {resolvedNavLinks.map((link) => (
+                        <a
+                            href={link.href}
+                            data-nav={link.dataNav}
+                            class="nav-btn"
+                        >
+                            {link.label}
+                        </a>
+                    ))}
                 </div>
             </nav>
         )
@@ -309,7 +316,7 @@ const { id, class: className, isIntro = false } = Astro.props;
                     if (isCancelled) break;
                     item.node.textContent = item.originalText.slice(0, i);
                     if (globalCursor) {
-                        item.node.after(globalCursor);
+                        (item.node as HTMLElement).after(globalCursor);
                     }
                     await new Promise((r) => setTimeout(r, typeSpeed));
                 }

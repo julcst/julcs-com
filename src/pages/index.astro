@@ -17,6 +17,28 @@ if (!intro || !tools) throw new Error("Could not find all content entries");
 const { Content: IntroContent } = await render(intro);
 const { Content: ToolsContent } = await render(tools);
 
+type EntryRecord = Record<string, any>;
+
+type SectionEntry = {
+    title: string;
+    date?: string;
+    meta?: string;
+    summary?: string;
+    details?: string[];
+};
+
+type NavLink = {
+    label: string;
+    href: string;
+    dataNav: string;
+};
+
+type GeneratedSection = {
+    id: string;
+    title: string;
+    entries: SectionEntry[];
+};
+
 const monthNames = [
     "Jan",
     "Feb",
@@ -32,7 +54,7 @@ const monthNames = [
     "Dec",
 ];
 
-function formatDate(value) {
+function formatDate(value: any): string {
     if (!value) return "";
     if (typeof value === "string" && value.toLowerCase() === "present")
         return "present";
@@ -47,7 +69,7 @@ function formatDate(value) {
     return `${monthNames[month - 1]} ${year}`;
 }
 
-function formatDateRange(start, end) {
+function formatDateRange(start: any, end: any): string {
     const startText = formatDate(start);
     const endText = formatDate(end);
     if (!startText && !endText) return "";
@@ -56,28 +78,61 @@ function formatDateRange(start, end) {
     return `${startText} – ${endText}`;
 }
 
-function normalizeEntryArray(value) {
+function normalizeEntryArray(value: any): EntryRecord[] {
     if (!Array.isArray(value)) return [];
     return value.filter((item) => item && typeof item === "object");
 }
 
-function normalizeStringArray(value) {
+function normalizeStringArray(value: any): string[] {
     if (!Array.isArray(value)) return [];
     return value
         .filter((item) => item !== null && item !== undefined)
         .map((item) => (typeof item === "string" ? item : String(item)));
 }
 
-function normalizeText(value) {
+function normalizeTextList(value: any): string[] {
+    if (Array.isArray(value)) return normalizeStringArray(value);
+    if (typeof value === "string") return value ? [value] : [];
+    return [];
+}
+
+function normalizeText(value: any): string {
     if (value === null || value === undefined) return "";
     return typeof value === "string" ? value : String(value);
 }
 
-function formatMetaLine(values) {
+function formatMetaLine(values: any[]): string {
     return values.map(normalizeText).filter(Boolean).join(" · ");
 }
 
-function buildEducationEntries(items) {
+function getFirstText(
+    item: EntryRecord | null | undefined,
+    keys: string[],
+): string {
+    for (const key of keys) {
+        const value = normalizeText(item?.[key]);
+        if (value) return value;
+    }
+    return "";
+}
+
+function humanizeSectionKey(key: string): string {
+    return normalizeText(key)
+        .replace(/[_-]+/g, " ")
+        .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function buildEntrySummary(item: EntryRecord | null | undefined): string {
+    return getFirstText(item, ["summary", "description", "abstract"]);
+}
+
+function buildEntryDetails(item: EntryRecord | null | undefined): string[] {
+    return normalizeTextList(
+        item?.highlights ?? item?.details ?? item?.bullets,
+    );
+}
+
+function buildEducationEntries(items: any): SectionEntry[] {
     return normalizeEntryArray(items)
         .map((item) => {
             const title = normalizeText(item.institution);
@@ -85,53 +140,107 @@ function buildEducationEntries(items) {
             const meta =
                 item.degree && item.area
                     ? `${item.degree} in ${item.area}`
-                    : "";
-            const details = normalizeStringArray(item.highlights);
+                    : normalizeText(item.degree);
+            const summary = buildEntrySummary(item);
+            const details = buildEntryDetails(item);
 
-            return { title, date, meta, details };
+            return { title, date, meta, summary, details };
         })
         .filter((entry) => entry.title);
 }
 
-function buildExperienceEntries(items) {
+function buildExperienceEntries(items: any): SectionEntry[] {
     return normalizeEntryArray(items)
         .map((item) => {
             const title = normalizeText(item.position);
             const date = formatDateRange(item.start_date, item.end_date);
             const meta = formatMetaLine([item.location, item.company]);
-            const details = normalizeStringArray(item.highlights);
+            const summary = buildEntrySummary(item);
+            const details = buildEntryDetails(item);
 
-            return { title, date, meta, details };
+            return { title, date, meta, summary, details };
         })
         .filter((entry) => entry.title);
 }
 
-function buildProjectEntries(items) {
+function buildProjectEntries(items: any): SectionEntry[] {
     return normalizeEntryArray(items)
         .map((item) => {
             const title = normalizeText(item.name);
             const date = formatDateRange(item.start_date, item.end_date);
-            const details = normalizeStringArray(item.highlights);
+            const summary = buildEntrySummary(item);
+            const details = buildEntryDetails(item);
 
-            return { title, date, meta: "", details };
+            return { title, date, meta: "", summary, details };
         })
         .filter((entry) => entry.title);
 }
 
-function buildPublicationEntries(items) {
+function buildPublicationEntries(items: any): SectionEntry[] {
     return normalizeEntryArray(items)
         .map((item) => {
             const title = normalizeText(item.title);
             const date = formatDate(item.date);
             const meta = normalizeStringArray(item.authors).join(", ");
+            const summary = buildEntrySummary(item);
             const details = [
-                normalizeText(item.venue),
+                normalizeText(item.type),
+                normalizeText(item.journal ?? item.venue),
+                item.url
+                    ? `[${normalizeText(item.url)}](${normalizeText(item.url)})`
+                    : "",
                 item.doi ? `[${item.doi}](https://doi.org/${item.doi})` : "",
             ].filter(Boolean);
 
-            return { title, date, meta, details };
+            return { title, date, meta, summary, details };
         })
         .filter((entry) => entry.title);
+}
+
+function buildSkillEntries(items: any): SectionEntry[] {
+    return normalizeEntryArray(items)
+        .map((item) => {
+            const title = getFirstText(item, ["label", "name", "title"]);
+            const meta = normalizeTextList(item.details).join(", ");
+
+            return { title, meta, summary: "", details: [] };
+        })
+        .filter((entry) => entry.title);
+}
+
+function buildGenericEntries(sectionKey: string, items: any): SectionEntry[] {
+    return normalizeEntryArray(items)
+        .map((item) => {
+            const title = getFirstText(item, [
+                "title",
+                "name",
+                "label",
+                "institution",
+                "position",
+            ]);
+            const date = formatDateRange(
+                item.start_date,
+                item.end_date ?? item.date,
+            );
+            const meta = formatMetaLine([item.company, item.location]);
+            const summary = buildEntrySummary(item);
+            const details = buildEntryDetails(item);
+
+            return { title, date, meta, summary, details };
+        })
+        .filter((entry) => entry.title);
+}
+
+function buildSectionEntries(sectionKey: string, items: any): SectionEntry[] {
+    if (sectionKey === "education") return buildEducationEntries(items);
+    if (sectionKey === "experience") return buildExperienceEntries(items);
+    if (sectionKey === "projects" || sectionKey === "others") {
+        return buildProjectEntries(items);
+    }
+    if (sectionKey === "publications") return buildPublicationEntries(items);
+    if (sectionKey === "skills") return buildSkillEntries(items);
+
+    return buildGenericEntries(sectionKey, items);
 }
 
 let yamlSections = null;
@@ -145,16 +254,22 @@ try {
     yamlProfile = null;
 }
 
-const educationEntries = buildEducationEntries(yamlSections?.education);
-const experienceEntries = buildExperienceEntries(yamlSections?.experience);
-const projectEntries = buildProjectEntries(yamlSections?.projects);
-const publicationEntries = buildPublicationEntries(yamlSections?.publications);
+const generatedSections = Object.entries(yamlSections ?? {})
+    .map(([sectionKey, sectionValue]): GeneratedSection | null => {
+        const entries = buildSectionEntries(sectionKey, sectionValue);
+        if (entries.length === 0) return null;
 
-const hasCvYaml = educationEntries.length > 0 || experienceEntries.length > 0;
-const hasProjectsYaml = projectEntries.length > 0;
-const hasPublications = publicationEntries.length > 0;
+        return {
+            id: sectionKey,
+            title: humanizeSectionKey(sectionKey),
+            entries,
+        };
+    })
+    .filter((section): section is GeneratedSection => section !== null);
 
-function buildContactItems(profile) {
+function buildContactItems(
+    profile: EntryRecord | null | undefined,
+): Array<{ label: string; value: string; href?: string }> {
     if (!profile) return [];
     const items = [];
 
@@ -196,6 +311,19 @@ function buildContactItems(profile) {
 
 const contactItems = buildContactItems(yamlProfile);
 
+const hasProfile = Boolean(yamlProfile?.name || contactItems.length > 0);
+const hasCvYaml = hasProfile || generatedSections.length > 0;
+
+const navLinks: NavLink[] = [
+    { label: "cv", href: "#cv", dataNav: "cv" },
+    ...generatedSections.map((section) => ({
+        label: section.title.toLowerCase(),
+        href: `#${section.id}`,
+        dataNav: section.id,
+    })),
+    { label: "tools", href: "#tools", dataNav: "tools" },
+];
+
 const today = new Date();
 const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
 ---
@@ -204,22 +332,19 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFul
     <BackgroundSketch />
 
     <!-- Fixed Intro Box (Collapses to Header) -->
-    <TerminalSection isIntro={true}>
+    <TerminalSection isIntro={true} navLinks={navLinks}>
         <IntroContent />
         <p>
-            <a href="#cv">&gt; cv</a><br />
-            <a href="#projects">&gt; projects</a><br />
             {
-                hasPublications ? (
+                navLinks.map((link) => (
                     <>
-                        <>
-                            <a href="#publications">&gt; publications</a>
-                            <br />
-                        </>
+                        <a href={link.href} data-nav={link.dataNav}>
+                            &gt; {link.label}
+                        </a>
+                        <br />
                     </>
-                ) : null
+                ))
             }
-            <a href="#tools">&gt; tools</a>
         </p>
         <p>{dateStr} - julcs</p>
     </TerminalSection>
@@ -228,43 +353,29 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFul
     <div class="scroll-container">
         <TerminalSection id="cv" class="content-box">
             {
-                hasCvYaml ? (
-                    <div class="cv-body">
-                        {yamlProfile?.name || contactItems.length > 0 ? (
-                            <div class="cv-profile">
-                                {yamlProfile?.name ? (
-                                    <div class="cv-profile-name">
-                                        {yamlProfile.name}
-                                    </div>
-                                ) : null}
-                                {contactItems.length > 0 ? (
-                                    <div class="cv-profile-meta">
-                                        {contactItems.map((item) => (
-                                            <span class="cv-profile-item">
-                                                <span class="cv-profile-label">
-                                                    {item.label}:
-                                                </span>
-                                                {item.href ? (
-                                                    <a href={item.href}>
-                                                        {item.value}
-                                                    </a>
-                                                ) : (
-                                                    <span>{item.value}</span>
-                                                )}
-                                            </span>
-                                        ))}
-                                    </div>
-                                ) : null}
+                hasProfile ? (
+                    <div class="cv-profile">
+                        {yamlProfile?.name ? (
+                            <div class="cv-profile-name">
+                                {yamlProfile.name}
                             </div>
                         ) : null}
-                        <CvSection
-                            title="Education"
-                            entries={educationEntries}
-                        />
-                        <CvSection
-                            title="Experience"
-                            entries={experienceEntries}
-                        />
+                        {contactItems.length > 0 ? (
+                            <div class="cv-profile-meta">
+                                {contactItems.map((item) => (
+                                    <span class="cv-profile-item">
+                                        <span class="cv-profile-label">
+                                            {item.label}:
+                                        </span>
+                                        {item.href ? (
+                                            <a href={item.href}>{item.value}</a>
+                                        ) : (
+                                            <span>{item.value}</span>
+                                        )}
+                                    </span>
+                                ))}
+                            </div>
+                        ) : null}
                     </div>
                 ) : (
                     <div class="cv-empty">CV data unavailable.</div>
@@ -272,32 +383,20 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFul
             }
         </TerminalSection>
 
-        <TerminalSection id="projects" class="content-box">
-            {
-                hasProjectsYaml ? (
-                    <div class="cv-body">
-                        <CvSection title="Projects" entries={projectEntries} />
-                    </div>
-                ) : null
-            }
-        </TerminalSection>
+        {
+            generatedSections.map((section) => (
+                <TerminalSection id={section.id} class="content-box">
+                    <CvSection
+                        title={section.title}
+                        entries={section.entries}
+                    />
+                </TerminalSection>
+            ))
+        }
 
         <TerminalSection id="tools" class="content-box">
             <ToolsContent />
         </TerminalSection>
-
-        {
-            hasPublications ? (
-                <TerminalSection id="publications" class="content-box">
-                    <div class="cv-body">
-                        <CvSection
-                            title="Publications"
-                            entries={publicationEntries}
-                        />
-                    </div>
-                </TerminalSection>
-            ) : null
-        }
     </div>
 
     <Footer />
