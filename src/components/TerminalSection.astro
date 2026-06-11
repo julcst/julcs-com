@@ -1,11 +1,23 @@
 ---
+interface NavLink {
+    id: string;
+    label: string;
+}
+
 interface Props {
     id?: string;
     class?: string;
     isIntro?: boolean;
+    navLinks?: NavLink[];
 }
 
-const { id, class: className, isIntro = false } = Astro.props;
+const {
+    id,
+    class: className,
+    isIntro = false,
+    navLinks = [],
+} = Astro.props;
+const shouldRenderNav = isIntro && navLinks.length > 0;
 ---
 
 <section
@@ -17,19 +29,19 @@ const { id, class: className, isIntro = false } = Astro.props;
     ]}
 >
     {
-        isIntro && (
+        shouldRenderNav && (
             <nav class="header-nav">
                 <span class="site-title">julcs.com</span>
                 <div class="nav-links">
-                    <a href="#cv" data-nav="cv" class="nav-btn">
-                        cv
-                    </a>
-                    <a href="#projects" data-nav="projects" class="nav-btn">
-                        projects
-                    </a>
-                    <a href="#tools" data-nav="tools" class="nav-btn">
-                        tools
-                    </a>
+                    {navLinks.map((link) => (
+                        <a
+                            href={`#${link.id}`}
+                            data-nav={link.id}
+                            class="nav-btn"
+                        >
+                            {link.label}
+                        </a>
+                    ))}
                 </div>
             </nav>
         )
@@ -199,12 +211,17 @@ const { id, class: className, isIntro = false } = Astro.props;
     }
 </style>
 
-<script>
-    const globalCursor = document.getElementById("global-cursor");
+<script lang="ts">
+    const globalCursor =
+        document.getElementById("global-cursor") as HTMLElement | null;
 
     // --- SCROLL & NAV LOGIC ---
-    const navLinks = document.querySelectorAll(".nav-links a");
-    const sections = document.querySelectorAll(".content-box");
+    const navLinkElements = Array.from(
+        document.querySelectorAll<HTMLAnchorElement>(".nav-links a"),
+    );
+    const sections = Array.from(
+        document.querySelectorAll<HTMLElement>(".content-box"),
+    );
 
     window.addEventListener("scroll", () => {
         if (window.scrollY > 50) {
@@ -215,13 +232,13 @@ const { id, class: className, isIntro = false } = Astro.props;
 
         let current = "";
         sections.forEach((section) => {
-            const sectionTop = (section as HTMLElement).offsetTop;
+            const sectionTop = section.offsetTop;
             if (window.scrollY >= sectionTop - 150) {
                 current = section.getAttribute("id") || "";
             }
         });
 
-        navLinks.forEach((link) => {
+        navLinkElements.forEach((link) => {
             link.classList.remove("active");
             if (link.getAttribute("data-nav") === current) {
                 link.classList.add("active");
@@ -235,7 +252,7 @@ const { id, class: className, isIntro = false } = Astro.props;
     ) as HTMLElement[];
     let currentTypingIndex = 0;
     let isTyping = false;
-    let cancelCurrentTyping = () => {};
+    let cancelCurrentTyping: () => void = () => {};
 
     // Initialize all sections as hidden/ready
     typedElements.forEach((el) => {
@@ -275,7 +292,7 @@ const { id, class: className, isIntro = false } = Astro.props;
 
     async function typeNode(rootNode: HTMLElement): Promise<void> {
         return new Promise(async (resolve) => {
-            const textNodes: { node: Node; originalText: string }[] = [];
+            const textNodes: Array<{ node: Node; originalText: string }> = [];
             let isCancelled = false;
             cancelCurrentTyping = () => {
                 isCancelled = true;
@@ -319,19 +336,20 @@ const { id, class: className, isIntro = false } = Astro.props;
     }
 
     // --- SKIP LOGIC ---
-    const navButtons = document.querySelectorAll(".nav-btn");
+    const navButtons = Array.from(
+        document.querySelectorAll<HTMLAnchorElement>(".nav-btn"),
+    );
     navButtons.forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-            const targetId = (btn as HTMLAnchorElement)
-                .getAttribute("href")
-                ?.substring(1);
+        btn.addEventListener("click", async () => {
+            const targetId = btn.getAttribute("href")?.substring(1);
             if (!targetId) return;
 
             const targetSection = document.getElementById(targetId);
             if (!targetSection) return;
-            const targetTyped = targetSection.querySelector(
+            const targetTyped = targetSection.querySelector<HTMLElement>(
                 ".typed",
-            ) as HTMLElement;
+            );
+            if (!targetTyped) return;
             const targetIndex = typedElements.indexOf(targetTyped);
 
             while (currentTypingIndex < targetIndex) {
