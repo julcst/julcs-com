@@ -23,7 +23,7 @@ cv:
         highlights:
           - "Grade: 1.1 ([top 3%](https://www.informatik.uni-bonn.de/de/studium/pruefungsamt/dokumente/ects-grade-distribution-2023-bachelor.pdf))"
           - "Bachelor's Thesis: Bidirectional Neural Radiance
-            Caching [[full-res]](https://files.julcs.com/bachelor-thesis.pdf)"
+            Caching [[full-res](https://files.julcs.com/bachelor-thesis.pdf)] [[low-res](https://files.julcs.com/bachelor-thesis-low-res.pdf)]"
       # - institution: Max-Planck-Gymnasium Delmenhorst
       #   area: General Higher Education Entrance Qualification
       #   degree: Abitur
@@ -33,7 +33,7 @@ cv:
       #     - "Grade: 1.3"
       #     - MINT-EC certificate "with distinction"
     publications:
-      - title: Photon-Driven Neural Radiance Caching
+      - title: "[Photon-Driven Neural Radiance Caching](https://cg.cs.uni-bonn.de/publications/stamm-2026-photon)"
         type: Poster
         summary: Continuation of Bachelor's Thesis "Bidirectional Neural Radiance Caching" with focus on Photon trained NRC. Presented at I3D 2026.
         authors:

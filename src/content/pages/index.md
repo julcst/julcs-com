@@ -10,5 +10,5 @@ specializing in computer graphics, neural rendering and real-time gi.
 
 * \> [contact me](mailto:mail@julcs.com)
 * \> [download cv](/cv.pdf)
-* \> [download bachelor's thesis](https://files.julcs.com/bachelor-thesis.pdf)
+* \> download bachelor's thesis [full-res](https://files.julcs.com/bachelor-thesis.pdf) [low-res](https://files.julcs.com/bachelor-thesis-low-res.pdf)
 
