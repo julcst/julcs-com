@@ -8,105 +8,266 @@ cv:
       username: julcst
   sections:
     education:
-      - institution: Max-Planck-Gymnasium Delmenhorst
-        area: General Higher Education Entrance Qualification
-        degree: Abitur
-        start_date: 2012-08
-        end_date: 2021-07
-        highlights:
-          - "Grade: 1.3"
-          - MINT-EC certificate "with distinction"
-      - institution: Rheinische Friedrich-Wilhelms-Universität Bonn
-        area: Computer Science
-        degree: B.Sc.
-        start_date: 2021-10
-        end_date: 2025-09
-        highlights:
-          - "Grade: 1.2"
-          - "[Bachelor's Thesis: Bidirectional Neural Radiance
-            Caching](https://files.julcs.com/bachelor-thesis.pdf)"
-      - institution: Rheinische Friedrich-Wilhelms-Universität Bonn
+      - institution: University of Bonn
         area: Computer Science
         degree: M.Sc.
         start_date: 2025-10
         end_date: present
         highlights:
-          - "Expected graduation date: 2027"
+          - Focus on Real-time GI, Neural Rendering, and Machine Learning
+      - institution: University of Bonn
+        area: Computer Science
+        degree: B.Sc.
+        start_date: 2021-10
+        end_date: 2025-09
+        highlights:
+          - "Grade: 1.1 ([top 3%](https://www.informatik.uni-bonn.de/de/studium/pruefungsamt/dokumente/ects-grade-distribution-2023-bachelor.pdf))"
+          - "Bachelor's Thesis: Bidirectional Neural Radiance
+            Caching [[full-res]](https://files.julcs.com/bachelor-thesis.pdf)"
+      # - institution: Max-Planck-Gymnasium Delmenhorst
+      #   area: General Higher Education Entrance Qualification
+      #   degree: Abitur
+      #   start_date: 2012-08
+      #   end_date: 2021-07
+      #   highlights:
+      #     - "Grade: 1.3"
+      #     - MINT-EC certificate "with distinction"
+    publications:
+      - title: Photon-Driven Neural Radiance Caching
+        type: Poster
+        summary: Continuation of Bachelor's Thesis "Bidirectional Neural Radiance Caching" with focus on Photon trained NRC. Presented at I3D 2026.
+        authors:
+          - Julian C. Stamm
+          - Tom Kneiphof
+          - Reinhard Klein
+        doi: 10.1145/3807895.3807923
+        url: https://cg.cs.uni-bonn.de/publications/stamm-2026-photon
+        date: 2026-05
+        journal: I3D Companion '26
     experience:
-      # - company: Subway Delmenhorst
-      #   position: Temporary Food Service Worker
-      #   location: Delmenhorst, Germany
-      #   start_date: 2019-09
-      #   end_date: 2021-05
+      - company: University of Bonn
+        position: Teaching Assistant for "Foundations of 4D/6D Object
+          Capture for Virtual Environments"
+        location: Bonn, Germany
+        start_date: 2026-02
+        end_date: 2026-03
+        highlights:
+          - Held daily block tutorials on Nerfs, IK, 3DGS, differentiable rendering etc.
+      - company: University of Bonn
+        position: Teaching Assistant for "Introduction to Computer Graphics"
+        location: Bonn, Germany
+        start_date: 2024-04
+        end_date: present
+        highlights:
+          - Held weekly tutorials on rasterization, ray tracing, BSDFs, splines etc.
+          - Assisted in creation of exercises and exams
+          - Developed and maintained modern OpenGL/C++ framework used in the exercises and the animation competition
       - company: Atlas Spare Parts GmbH
         position: Temporary Worker in Software Development Team
         location: Ganderkesee, Germany
         start_date: 2021-05
         end_date: 2021-09
-      - company: Rheinische Friedrich-Wilhelms-Universität Bonn
-        position: Teaching Assistant
-        location: Bonn, Germany
-        start_date: 2024-04
-        end_date: present
-        highlights:
-          - Teaching assistant for the course "Introduction to Computer Graphics"
-          - Assisted in the creation of exercises and exams
-          - Teaching assistant for the course "Foundations of 4D/6D Object
-            Capture for Virtual Environments"
+        summary: Developed custom CAN bus logger.
+      # - company: Subway Delmenhorst
+      #   position: Temporary Food Service Worker
+      #   location: Delmenhorst, Germany
+      #   start_date: 2019-09
+      #   end_date: 2021-05
     projects:
-      - name: "[gltemplate](https://github.com/julcst/gltemplate)"
-        start_date: 2023-08
+      - name: "[tsnn](https://github.com/julcst/tsnn) (unpublished)"
+        start_date: 2026-05
         end_date: present
+        summary: High performance Slang-native tiny-cuda-nn alternative with Slangs auto-differentiation.
         highlights:
-          - OpenGL framework developed for CG exercises
-          - Written in C++ and CMake
+          - Implementation of neural spline flows, hash grid encodings, MLPs, Adam, and more
+          - Achieves full kernel fusion with Falcor path tracer
+          - Slightly outperforms tiny-cuda-nn in my NRC benchmark
+          - Written for my current lab research on real-time neural importance sampling
+      - name: "[PhotonNRC](https://github.com/julcst/photon-nrc)"
+        start_date: 2025-02
+        end_date: present
+        summary:
+          Falcor implementation of my Bachelor Thesis "Bidirectional Neural
+          Radiance Caching" and poster "Photon-Driven Neural Radiance Caching".
+        highlights:
+          - Hardware-accelerated SPPM implementation
+          - NRC implementation using tiny-cuda-nn
+          - Implementation of Photon-NRC
+      - name: "[BiNRC](https://github.com/julcst/binrc)"
+        start_date: 2025-02
+        end_date: 2025-09
+        summary:
+          OptiX implementation of my Bachelor Thesis "Bidirectional Neural
+          Radiance Caching".
+        highlights:
+          - Hardware-accelerated SPPM implementation
+          - NRC implementation using tiny-cuda-nn
+          - Unbiased path tracer with MIS and NEE
+          - Implementation of basic Disney principled BSDF
+          - Implementation of Photon-NRC
+      - name: "[nBounce](https://github.com/julcst/nbounce)"
+        start_date: 2024-08
+        end_date: present
+        summary: Self-educational real-time path tracer with software BVH construction and traversal.
+        highlights:
+          - Written in Rust and wgpu
       - name: "[Stable Real-Time Simulation of Mesoscopic
           Glints](https://github.com/julcst/Lab-ComputerGraphics-WS2023)"
         start_date: 2023-10
         end_date: 2024-03
+        summary: Computer Graphics Lab as part of the B.Sc. Computer Science.
         highlights:
-          - Computer Graphics Lab as part of the B.Sc. Computer Science
           - Implementation of the discrete stochastic microfacet model from
             "Real-Time Rendering of Glinty Appearances Using Distributed
             Binomial Laws on Anisotropic Grids" by Thomas Deliot and Laurent
             Belcour
-      - name: "[nBounce](https://github.com/julcst/nbounce)"
-        start_date: 2024-08
+      - name: "[gltemplate](https://github.com/julcst/gltemplate)"
+        start_date: 2023-08
         end_date: present
+        summary: OpenGL 4.6 framework developed for CG exercises.
         highlights:
-          - Self-educational real-time software pathtracer
-          - Written in Rust and wgpu
-      - name: "[BiNRC](https://github.com/julcst/binrc)"
-        start_date: 2025-02
-        end_date: 2025-09
-        highlights:
-          - OptiX implementation of my Bachelor Thesis "Bidirectional Neural
-            Radiance Caching"
-      - name: "[PhotonNRC](https://github.com/julcst/photon-nrc)"
-        start_date: 2025-02
+          - Written in C++ and CMake, RAII-based resource management, texture/mesh loading utilities
+    others:
+      - name: "[bevy_trail](https://github.com/julcst/bevy_trail)"
+        start_date: 2026-04
         end_date: present
-        highlights:
-          - Falcor implementation of my Bachelor Thesis "Bidirectional Neural
-            Radiance Caching"
-    publications:
-      - title: Photon-Driven Neural Radiance Caching
-        type: Poster
-        authors:
-          - Julian C. Stamm
-          - Tom Kneiphof
-          - Reinhard Klein
-        venue: I3D 2026
-        doi: 10.1145/3807895.3807923
-        date: 2026-05
+        summary: Bevy plugin for high performance GPU-based trails in wgpu.
+      - name: "P2P Multiplayer Game"
+        start_date: 2025-09
+        end_date: present
+        summary: Working on a Python-moddable P2P-multiplayer card game in Rust using bevy.
+    skills:
+      - label: Languages
+        details: C++, CMake, GLSL, CUDA, Slang, Python, Rust, WGSL, Java
+      - label: APIs
+        details: OpenGL, OptiX, Falcor, wgpu, bevy, Godot, PyTorch
+      - label: Research Interests
+        details: Real-Time GI, Neural Rendering, Path Tracing, Photon Mapping, Machine Learning, Normalizing Flows
+      - label: Spoken Languages
+        details: "German (native), English (TOEFL iBT: 110/120)"
 
 design:
-  theme: sb2nov
-  typography:
-    font_family: Source Sans 3
+  theme: moderncv
   page:
     size: a4
+    top_margin: 0.7in
+    bottom_margin: 0.7in
+    left_margin: 0.7in
+    right_margin: 0.7in
+    show_footer: true
+    show_top_note: true
+  colors:
+    body: rgb(0, 0, 0)
+    name: rgb(0, 79, 144)
+    headline: rgb(0, 79, 144)
+    connections: rgb(0, 79, 144)
+    section_titles: rgb(0, 79, 144)
+    links: rgb(0, 79, 144)
+    footer: rgb(128, 128, 128)
+    top_note: rgb(128, 128, 128)
+  typography:
+    line_spacing: 0.6em
+    alignment: left
+    date_and_location_column_alignment: right
+    font_family:
+      body: Source Sans 3
+      name: Source Sans 3
+      headline: Source Sans 3
+      connections: Source Sans 3
+      section_titles: Source Sans 3
+    font_size:
+      body: 10pt
+      name: 25pt
+      headline: 10pt
+      connections: 10pt
+      section_titles: 1em
+    small_caps:
+      name: false
+      headline: false
+      connections: false
+      section_titles: true
+    bold:
+      name: false
+      headline: false
+      connections: false
+      section_titles: true
   links:
+    underline: true
     show_external_link_icon: true
   header:
+    alignment: left
+    photo_width: 4.15cm
+    photo_position: left
+    photo_space_left: 0cm
+    photo_space_right: 0.3cm
+    space_below_name: 0.7cm
+    space_below_headline: 0.7cm
+    space_below_connections: 0.7cm
     connections:
+      phone_number_format: national
+      hyperlink: true
       show_icons: true
+      display_urls_instead_of_usernames: false
+      separator: ""
+      space_between_connections: 0.5cm
+  section_titles:
+    type: moderncv
+    line_thickness: 0.01cm
+    space_above: 0.55cm
+    space_below: 0.3cm
+  sections:
+    allow_page_break: true
+    space_between_regular_entries: 1.2em
+    space_between_text_based_entries: 0.3em
+    show_time_spans_in: []
+  entries:
+    date_and_location_width: 4.15cm
+    side_space: 0cm
+    space_between_columns: 0.3cm
+    allow_page_break: false
+    short_second_row: false
+    degree_width: 1cm
+    summary:
+      space_above: 0.1cm
+      space_left: 0cm
+    highlights:
+      bullet: •
+      nested_bullet: •
+      space_left: 0cm
+      space_above: 0.15cm
+      space_between_items: 0.1cm
+      space_between_bullet_and_text: 0.3em
+  templates:
+    footer: "*NAME -- PAGE_NUMBER/TOTAL_PAGES*"
+    top_note: "*LAST_UPDATED CURRENT_DATE*"
+    single_date: MONTH_ABBREVIATION YEAR
+    date_range: START_DATE – END_DATE
+    time_span: HOW_MANY_YEARS YEARS HOW_MANY_MONTHS MONTHS
+    one_line_entry:
+      main_column: "**LABEL:** DETAILS"
+    education_entry:
+      main_column: |-
+        **INSTITUTION**, DEGREE_WITH_AREA -- LOCATION
+        SUMMARY
+        HIGHLIGHTS
+      degree_column:
+      date_and_location_column: DATE
+    normal_entry:
+      main_column: |-
+        **NAME** -- **LOCATION**
+        SUMMARY
+        HIGHLIGHTS
+      date_and_location_column: DATE
+    experience_entry:
+      main_column: |-
+        **POSITION**, COMPANY -- LOCATION
+        SUMMARY
+        HIGHLIGHTS
+      date_and_location_column: DATE
+    publication_entry:
+      main_column: |-
+        **TITLE**
+        SUMMARY
+        AUTHORS
+        URL (JOURNAL)
+      date_and_location_column: DATE
