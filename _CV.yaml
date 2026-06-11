@@ -21,7 +21,7 @@ cv:
         start_date: 2021-10
         end_date: 2025-09
         highlights:
-          - "Grade: 1.1"
+          - "Grade: 1.1 ([top 3%](https://www.informatik.uni-bonn.de/de/studium/pruefungsamt/dokumente/ects-grade-distribution-2023-bachelor.pdf))"
           - "Bachelor's Thesis: Bidirectional Neural Radiance
             Caching [[full-res]](https://files.julcs.com/bachelor-thesis.pdf)"
       # - institution: Max-Planck-Gymnasium Delmenhorst
@@ -52,16 +52,16 @@ cv:
         start_date: 2026-02
         end_date: 2026-03
         highlights:
-          - Held daily block tutorials
+          - Held daily block tutorials on Nerfs, IK, 3DGS, differentiable rendering etc.
       - company: University of Bonn
         position: Teaching Assistant for "Introduction to Computer Graphics"
         location: Bonn, Germany
         start_date: 2024-04
         end_date: present
         highlights:
-          - Held weekly tutorials
+          - Held weekly tutorials on rasterization, ray tracing, BSDFs, splines etc.
           - Assisted in creation of exercises and exams
-          - Developed and maintained modern OpenGL/C++ framework for exercises and animation competition
+          - Developed and maintained modern OpenGL/C++ framework used in the exercises and the animation competition
       - company: Atlas Spare Parts GmbH
         position: Temporary Worker in Software Development Team
         location: Ganderkesee, Germany
@@ -79,7 +79,7 @@ cv:
         end_date: present
         summary: High performance Slang-native tiny-cuda-nn alternative with Slangs auto-differentiation.
         highlights:
-          - Implementation of normalizing spline flows, hash grid encodings, MLPs, Adam, and more
+          - Implementation of neural spline flows, hash grid encodings, MLPs, Adam, and more
           - Achieves full kernel fusion with Falcor path tracer
           - Slightly outperforms tiny-cuda-nn in my NRC benchmark
           - Written for my current lab research on real-time neural importance sampling
@@ -143,6 +143,8 @@ cv:
         details: OpenGL, OptiX, Falcor, wgpu, bevy, Godot, PyTorch
       - label: Research Interests
         details: Real-Time GI, Neural Rendering, Path Tracing, Photon Mapping, Machine Learning, Normalizing Flows
+      - label: Spoken Languages
+        details: "German (native), English (TOEFL iBT: 110/120)"
 
 design:
   theme: moderncv
