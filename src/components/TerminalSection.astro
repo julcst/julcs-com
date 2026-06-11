@@ -207,8 +207,6 @@ const resolvedNavLinks = navLinks.length > 0 ? navLinks : defaultNavLinks;
 </style>
 
 <script>
-    const globalCursor = document.getElementById("global-cursor");
-
     // --- SCROLL & NAV LOGIC ---
     const navLinks = document.querySelectorAll(".nav-links a");
     const sections = document.querySelectorAll(".content-box");
@@ -236,124 +234,269 @@ const resolvedNavLinks = navLinks.length > 0 ? navLinks : defaultNavLinks;
         });
     });
 
-    // --- SEQUENTIAL TYPEWRITER LOGIC ---
-    const typedElements = Array.from(
-        document.getElementsByClassName("typed"),
+    // --- PER-LINE TYPEWRITER LOGIC ---
+    const lineSelector =
+        ".typed :is(h1, h2, h3, h4, h5, h6, p, li, .cv-entry-date, .cv-entry-meta, .cv-entry-summary, .cv-profile-name, .cv-profile-item, .obfuscate-line)";
+    const sectionTargets = Array.from(
+        document.querySelectorAll(".terminal-box"),
     ) as HTMLElement[];
-    let currentTypingIndex = 0;
-    let isTyping = false;
-    let cancelCurrentTyping = () => {};
 
-    // Initialize all sections as hidden/ready
-    typedElements.forEach((el) => {
-        el.style.opacity = "0";
-    });
+    type TextNodeState = {
+        node: Text;
+        originalText: string;
+    };
+
+    type TargetState = {
+        textNodes: TextNodeState[];
+        isTyping: boolean;
+        cancelTyping: (() => void) | null;
+        shouldResetOnFinish: boolean;
+    };
+
+    const lineStates = new WeakMap<HTMLElement, TargetState>();
+
+    function createRandomTail(length: number) {
+        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+-=?";
+        let result = "";
+
+        for (let index = 0; index < length; index += 1) {
+            result += characters[Math.floor(Math.random() * characters.length)];
+        }
+
+        return result;
+    }
+
+    function createRandomCharacter() {
+        return createRandomTail(1);
+    }
+
+    function createRandomCharacterExcept(forbiddenCharacter: string) {
+        let randomCharacter = createRandomCharacter();
+
+        if (!forbiddenCharacter) return randomCharacter;
+
+        while (randomCharacter === forbiddenCharacter) {
+            randomCharacter = createRandomCharacter();
+        }
+
+        return randomCharacter;
+    }
+
+    function waitForNextPaint() {
+        return new Promise<void>((resolve) => {
+            requestAnimationFrame(() => resolve());
+        });
+    }
+
+    function collectTextNodes(rootNode: Node) {
+        const textNodes: TextNodeState[] = [];
+
+        function walk(node: Node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const text = node.textContent || "";
+                if (text.trim().length === 0 && text.includes("\n")) return;
+
+                textNodes.push({ node: node as Text, originalText: text });
+                node.textContent = "";
+                return;
+            }
+
+            Array.from(node.childNodes).forEach(walk);
+        }
+
+        walk(rootNode);
+        return textNodes;
+    }
+
+    function getLineState(rootNode: HTMLElement): TargetState {
+        const existingState = lineStates.get(rootNode);
+        if (existingState) return existingState;
+
+        const textNodes = collectTextNodes(rootNode);
+        const state: TargetState = {
+            textNodes,
+            isTyping: false,
+            cancelTyping: null,
+            shouldResetOnFinish: false,
+        };
+
+        lineStates.set(rootNode, state);
+        rootNode.dataset.typed = "false";
+        rootNode.style.opacity = "0";
+
+        return state;
+    }
+
+    function restoreLine(rootNode: HTMLElement, state: TargetState) {
+        state.textNodes.forEach((item) => {
+            item.node.textContent = "";
+        });
+
+        rootNode.style.opacity = "0";
+        rootNode.dataset.typed = "false";
+    }
+
+    function renderScrambledTail(text: string, visibleCount: number) {
+        if (visibleCount <= 0) return "";
+
+        const tailWindow = Math.min(50, visibleCount);
+        const prefix = text.slice(0, visibleCount - tailWindow);
+        const tail = text.slice(visibleCount - tailWindow, visibleCount);
+
+        const scrambledTail = tail
+            .split("")
+            .map((character, index) => {
+                const distanceFromEnd = tail.length - 1 - index;
+                const isLastCharacter = distanceFromEnd === 0;
+                const originalBias = Math.min(
+                    0.92,
+                    0.18 + distanceFromEnd * 0.18,
+                );
+
+                if (isLastCharacter) {
+                    return createRandomCharacterExcept(character);
+                }
+
+                return Math.random() < originalBias
+                    ? character
+                    : createRandomCharacter();
+            })
+            .join("");
+
+        return `${prefix}${scrambledTail}`;
+    }
+
+    async function typeNode(
+        rootNode: HTMLElement,
+        state: TargetState,
+    ): Promise<void> {
+        if (state.isTyping) return;
+
+        state.isTyping = true;
+        state.shouldResetOnFinish = false;
+        rootNode.style.opacity = "1";
+
+        let cancelled = false;
+        state.cancelTyping = () => {
+            cancelled = true;
+        };
+
+        const typeSpeed = 0;
+        const scrambleFrames = 1;
+        const scrambleDelay = 5;
+
+        try {
+            for (const item of state.textNodes) {
+                for (
+                    let visibleCount = 0;
+                    visibleCount <= item.originalText.length;
+                    visibleCount += 1
+                ) {
+                    if (cancelled) return;
+
+                    if (visibleCount === 0) {
+                        item.node.textContent = "";
+                    } else {
+                        for (
+                            let frame = 0;
+                            frame < scrambleFrames;
+                            frame += 1
+                        ) {
+                            if (cancelled) return;
+                            item.node.textContent = renderScrambledTail(
+                                item.originalText,
+                                visibleCount,
+                            );
+                            await waitForNextPaint();
+                            if (scrambleDelay > 0) {
+                                await new Promise((resolve) =>
+                                    setTimeout(resolve, scrambleDelay),
+                                );
+                            }
+                        }
+
+                        item.node.textContent = item.originalText.slice(
+                            0,
+                            visibleCount,
+                        );
+                    }
+
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, typeSpeed),
+                    );
+                }
+            }
+            rootNode.dataset.typed = "true";
+        } finally {
+            state.isTyping = false;
+            state.cancelTyping = null;
+
+            if (state.shouldResetOnFinish) {
+                restoreLine(rootNode, state);
+            }
+        }
+    }
+
+    function startTyping(target: HTMLElement) {
+        const state = getLineState(target);
+
+        if (state.isTyping || target.dataset.typed === "true") return;
+
+        void typeNode(target, state);
+    }
+
+    function resetTyping(target: HTMLElement) {
+        const state = getLineState(target);
+
+        state.shouldResetOnFinish = true;
+
+        if (state.cancelTyping) {
+            state.cancelTyping();
+            return;
+        }
+
+        restoreLine(target, state);
+    }
+
+    function getSectionLineTargets(section: HTMLElement) {
+        return Array.from(
+            section.querySelectorAll(lineSelector),
+        ) as HTMLElement[];
+    }
+
+    function startSectionTyping(section: HTMLElement) {
+        getSectionLineTargets(section).forEach((target) => startTyping(target));
+    }
+
+    function resetSectionTyping(section: HTMLElement) {
+        getSectionLineTargets(section).forEach((target) => resetTyping(target));
+    }
 
     const observer = new IntersectionObserver(
         (entries) => {
             entries.forEach((entry) => {
+                const section = entry.target as HTMLElement;
+
                 if (entry.isIntersecting) {
-                    const node = entry.target as HTMLElement;
-                    node.dataset.visible = "true";
-                    tryStartNext();
+                    startSectionTyping(section);
+                    return;
                 }
+
+                resetSectionTyping(section);
             });
         },
-        { threshold: 0.1 },
+        {
+            threshold: 0.15,
+            rootMargin: "0px 0px -10% 0px",
+        },
     );
 
-    typedElements.forEach((node) => observer.observe(node));
+    sectionTargets.forEach((section) => observer.observe(section));
 
-    async function tryStartNext() {
-        if (isTyping) return;
-        if (currentTypingIndex >= typedElements.length) return;
-
-        const nextNode = typedElements[currentTypingIndex];
-
-        if (nextNode.dataset.visible === "true" || currentTypingIndex === 0) {
-            isTyping = true;
-            nextNode.style.opacity = "1";
-            await typeNode(nextNode);
-            isTyping = false;
-            currentTypingIndex++;
-            tryStartNext();
+    sectionTargets.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+            startSectionTyping(section);
         }
-    }
-
-    async function typeNode(rootNode: HTMLElement): Promise<void> {
-        return new Promise(async (resolve) => {
-            const textNodes: { node: Node; originalText: string }[] = [];
-            let isCancelled = false;
-            cancelCurrentTyping = () => {
-                isCancelled = true;
-                // Force show everything immediately
-                textNodes.forEach((item) => {
-                    item.node.textContent = item.originalText;
-                });
-                resolve();
-            };
-
-            function collectAndClear(node: Node) {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    const text = node.textContent || "";
-
-                    // HEURISTIC: Skip nodes that are purely indentation (contain newlines and are just whitespace)
-                    // but PRESERVE single spaces between words/tags.
-                    if (text.trim().length === 0 && text.includes("\n")) return;
-
-                    textNodes.push({ node, originalText: text });
-                    node.textContent = "";
-                } else {
-                    Array.from(node.childNodes).forEach(collectAndClear);
-                }
-            }
-            collectAndClear(rootNode);
-
-            const typeSpeed = 0.1;
-            for (const item of textNodes) {
-                if (isCancelled) break;
-                for (let i = 0; i <= item.originalText.length; i++) {
-                    if (isCancelled) break;
-                    item.node.textContent = item.originalText.slice(0, i);
-                    if (globalCursor) {
-                        (item.node as HTMLElement).after(globalCursor);
-                    }
-                    await new Promise((r) => setTimeout(r, typeSpeed));
-                }
-            }
-            resolve();
-        });
-    }
-
-    // --- SKIP LOGIC ---
-    const navButtons = document.querySelectorAll(".nav-btn");
-    navButtons.forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-            const targetId = (btn as HTMLAnchorElement)
-                .getAttribute("href")
-                ?.substring(1);
-            if (!targetId) return;
-
-            const targetSection = document.getElementById(targetId);
-            if (!targetSection) return;
-            const targetTyped = targetSection.querySelector(
-                ".typed",
-            ) as HTMLElement;
-            const targetIndex = typedElements.indexOf(targetTyped);
-
-            while (currentTypingIndex < targetIndex) {
-                if (isTyping) {
-                    cancelCurrentTyping();
-                    await new Promise((r) => setTimeout(r, 20));
-                }
-
-                const node = typedElements[currentTypingIndex];
-                node.style.opacity = "1";
-                currentTypingIndex++;
-            }
-            tryStartNext();
-        });
     });
-
-    tryStartNext();
 </script>

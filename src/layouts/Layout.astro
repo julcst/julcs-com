@@ -1,43 +1,26 @@
 ---
-import '@fontsource/jetbrains-mono/400.css';
-import '@fontsource/jetbrains-mono/700.css';
-import '../styles/common.css';
-import BaseHead from '../components/BaseHead.astro';
+import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/jetbrains-mono/700.css";
+import "../styles/common.css";
+import BaseHead from "../components/BaseHead.astro";
 
 interface Props {
-	title: string;
-	description?: string;
+    title: string;
+    description?: string;
 }
 
-const { 
-	title, 
-	description = "Personal website of Julian Stamm",
-} = Astro.props;
+const { title, description = "Personal website of Julian Stamm" } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<BaseHead title={title} description={description} />
-		<slot name="head" />
-	</head>
-	<body>
-		<slot />
-        <!-- Single Global Cursor -->
-        <span id="global-cursor" class="cursor">_</span>
-	</body>
+    <head>
+        <BaseHead title={title} description={description} />
+        <slot name="head" />
+    </head>
+    <body>
+        <slot />
+    </body>
 </html>
 
-<style is:global>
-    .cursor {
-        animation: blink 0.7s infinite;
-        font-weight: bold;
-        display: inline;
-        margin-left: 0.1em;
-        line-height: 1;
-    }
-
-    @keyframes blink {
-        50% { opacity: 0; }
-    }
-</style>
+<style is:global></style>

@@ -1,3 +1,8 @@
+---
+title: "Julian Stamm | CV"
+description: "Curriculum vitae of Julian Stamm."
+---
+
 # Julian C. Stamm's CV
 
 - Email: [mail@julcs.com](mailto:mail@julcs.com)
