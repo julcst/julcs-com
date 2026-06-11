@@ -17,7 +17,7 @@ Oct 2025 – present
 ## **University of Bonn**, B.Sc. in Computer Science
 Oct 2021 – Sept 2025
 
-- Grade: 1.1
+- Grade: 1.1 ([top 3%](https://www.informatik.uni-bonn.de/de/studium/pruefungsamt/dokumente/ects-grade-distribution-2023-bachelor.pdf))
 
 - Bachelor's Thesis: Bidirectional Neural Radiance Caching [[full-res]](https://files.julcs.com/bachelor-thesis.pdf)
 
@@ -41,7 +41,7 @@ Julian C. Stamm, Tom Kneiphof, Reinhard Klein
 
 Feb 2026 – Mar 2026
 
-- Held daily block tutorials
+- Held daily block tutorials on Nerfs, IK, 3DGS, differentiable rendering etc.
 
 
 
@@ -49,11 +49,11 @@ Feb 2026 – Mar 2026
 
 Apr 2024 – present
 
-- Held weekly tutorials
+- Held weekly tutorials on rasterization, ray tracing, BSDFs, splines etc.
 
 - Assisted in creation of exercises and exams
 
-- Developed and maintained modern OpenGL/C++ framework for exercises and animation competition
+- Developed and maintained modern OpenGL/C++ framework used in the exercises and the animation competition
 
 
 
@@ -72,7 +72,7 @@ May 2026 – present
 
 High performance Slang-native tiny-cuda-nn alternative with Slangs auto-differentiation.
 
-- Implementation of normalizing spline flows, hash grid encodings, MLPs, Adam, and more
+- Implementation of neural spline flows, hash grid encodings, MLPs, Adam, and more
 
 - Achieves full kernel fusion with Falcor path tracer
 
@@ -167,3 +167,5 @@ Working on a Python-moddable P2P-multiplayer card game in Rust using bevy.
 **APIs:** OpenGL, OptiX, Falcor, wgpu, bevy, Godot, PyTorch
 
 **Research Interests:** Real-Time GI, Neural Rendering, Path Tracing, Photon Mapping, Machine Learning, Normalizing Flows
+
+**Spoken Languages:** German (native), English (TOEFL iBT: 110/120)
