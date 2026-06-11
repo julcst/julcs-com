@@ -19,12 +19,12 @@ Oct 2021 – Sept 2025
 
 - Grade: 1.1 ([top 3%](https://www.informatik.uni-bonn.de/de/studium/pruefungsamt/dokumente/ects-grade-distribution-2023-bachelor.pdf))
 
-- Bachelor's Thesis: Bidirectional Neural Radiance Caching [[full-res]](https://files.julcs.com/bachelor-thesis.pdf)
+- Bachelor's Thesis: Bidirectional Neural Radiance Caching [[full-res](https://files.julcs.com/bachelor-thesis.pdf)] [[low-res](https://files.julcs.com/bachelor-thesis-low-res.pdf)]
 
 
 
 # Publications
-## **Photon-Driven Neural Radiance Caching**
+## **[Photon-Driven Neural Radiance Caching](https://cg.cs.uni-bonn.de/publications/stamm-2026-photon)**
 
 May 2026
 
