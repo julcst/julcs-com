@@ -25,6 +25,11 @@ type SectionEntry = {
     meta?: string;
     summary?: string;
     details?: string[];
+    media?: {
+        src: string;
+        alt: string;
+        href?: string;
+    };
 };
 
 type NavLink = {
@@ -183,6 +188,9 @@ function buildPublicationEntries(items: any): SectionEntry[] {
             const date = formatDate(item.date);
             const meta = normalizeStringArray(item.authors).join(", ");
             const summary = buildEntrySummary(item);
+            const isPhotonNrc = title
+                .toLowerCase()
+                .includes("photon-driven neural radiance caching");
             const details = [
                 normalizeText(item.type),
                 normalizeText(item.journal ?? item.venue),
@@ -192,7 +200,20 @@ function buildPublicationEntries(items: any): SectionEntry[] {
                 item.doi ? `[${item.doi}](https://doi.org/${item.doi})` : "",
             ].filter(Boolean);
 
-            return { title, date, meta, summary, details };
+            return {
+                title,
+                date,
+                meta,
+                summary,
+                details,
+                media: isPhotonNrc
+                    ? {
+                          src: "/PhotonNRC.gif",
+                          alt: "Animated teaser for Photon-Driven Neural Radiance Caching",
+                          href: normalizeText(item.url) || undefined,
+                      }
+                    : undefined,
+            };
         })
         .filter((entry) => entry.title);
 }

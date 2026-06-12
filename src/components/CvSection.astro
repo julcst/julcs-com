@@ -8,6 +8,11 @@ interface Entry {
     meta?: string;
     summary?: string;
     details?: string[];
+    media?: {
+        src: string;
+        alt: string;
+        href?: string;
+    };
 }
 
 interface Props {
@@ -27,31 +32,56 @@ const safeEntries = Array.isArray(entries) ? entries : [];
             <div class="cv-entries">
                 {safeEntries.map((entry) => (
                     <article class="cv-entry">
-                        <div class="cv-entry-head">
+                        <div class="cv-entry-main">
                             <h3 class="cv-entry-title">
                                 <InlineText value={entry.title} />
                             </h3>
-                            <CvDate value={entry.date} />
+                            {entry.meta ? (
+                                <div class="cv-entry-meta">
+                                    <InlineText value={entry.meta} />
+                                </div>
+                            ) : null}
+                            {entry.summary ? (
+                                <div class="cv-entry-summary">
+                                    <InlineText value={entry.summary} />
+                                </div>
+                            ) : null}
+                            {entry.details && entry.details.length > 0 ? (
+                                <ul class="cv-entry-list">
+                                    {entry.details.map((detail) => (
+                                        <li>
+                                            <InlineText value={detail} />
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : null}
                         </div>
-                        {entry.meta ? (
-                            <div class="cv-entry-meta">
-                                <InlineText value={entry.meta} />
-                            </div>
-                        ) : null}
-                        {entry.summary ? (
-                            <div class="cv-entry-summary">
-                                <InlineText value={entry.summary} />
-                            </div>
-                        ) : null}
-                        {entry.details && entry.details.length > 0 ? (
-                            <ul class="cv-entry-list">
-                                {entry.details.map((detail) => (
-                                    <li>
-                                        <InlineText value={detail} />
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : null}
+
+                        <div class="cv-entry-side">
+                            <CvDate value={entry.date} />
+                            {entry.media ? (
+                                <div class="cv-entry-media">
+                                    {entry.media.href ? (
+                                        <a
+                                            href={entry.media.href}
+                                            class="cv-entry-media-link"
+                                        >
+                                            <img
+                                                src={entry.media.src}
+                                                alt={entry.media.alt}
+                                                loading="lazy"
+                                            />
+                                        </a>
+                                    ) : (
+                                        <img
+                                            src={entry.media.src}
+                                            alt={entry.media.alt}
+                                            loading="lazy"
+                                        />
+                                    )}
+                                </div>
+                            ) : null}
+                        </div>
                     </article>
                 ))}
             </div>
@@ -86,6 +116,9 @@ const safeEntries = Array.isArray(entries) ? entries : [];
     }
 
     .cv-entry {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 100px;
+        column-gap: 1.5rem;
         margin: 0;
         padding-bottom: 0.1rem;
     }
@@ -94,11 +127,16 @@ const safeEntries = Array.isArray(entries) ? entries : [];
         margin-top: 0.2rem;
     }
 
-    .cv-entry-head {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) max-content;
-        align-items: baseline;
-        column-gap: 1.2rem;
+    .cv-entry-main {
+        min-width: 0;
+    }
+
+    .cv-entry-side {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.8rem;
+        padding-top: 0.15rem;
     }
 
     .cv-entry-title {
@@ -106,7 +144,6 @@ const safeEntries = Array.isArray(entries) ? entries : [];
         font-size: 1.02rem;
         min-width: 0;
         overflow-wrap: anywhere;
-        flex: 1 1 auto;
         margin: 0;
     }
 
@@ -121,9 +158,44 @@ const safeEntries = Array.isArray(entries) ? entries : [];
     }
 
     .cv-entry-summary {
-        margin-top: 0.25rem;
         font-size: var(--font-size-sm);
         opacity: 0.92;
+        margin-top: 0.25rem;
+    }
+
+    .cv-entry-media {
+        width: 80px;
+    }
+
+    .cv-entry-media img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: 1px solid currentColor;
+        box-shadow: 0.15em 0.15em;
+    }
+
+    .cv-entry-media-link {
+        display: block;
+    }
+
+    @media (max-width: 600px) {
+        .cv-entry {
+            grid-template-columns: 1fr;
+            gap: 0.4rem;
+        }
+
+        .cv-entry-side {
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            align-items: center;
+            grid-row: 1; /* Move date/media to top area on mobile */
+            margin-bottom: 0.2rem;
+        }
+
+        .cv-entry-media {
+            width: 60px;
+        }
     }
 
     .cv-entry-list {
