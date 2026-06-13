@@ -80,7 +80,7 @@ cv:
         end_date: present
         summary: High-performance Slang-native tiny-cuda-nn alternative using Slang's auto-differentiation.
         highlights:
-          - Implementation of neural spline flows, hash grid encodings, MLPs, Adam, and more
+          - Implemented neural spline flows, hash grid encodings, MLPs, Adam, and more
           - Achieves full kernel fusion with Falcor path tracer
           - Slightly outperforms tiny-cuda-nn in my NRC benchmark
           - Written for my current lab research on real-time neural importance sampling
@@ -88,11 +88,10 @@ cv:
         start_date: 2025-02
         end_date: present
         summary:
-          Falcor implementation of poster "Photon-Driven Neural Radiance Caching".
+          Falcor implementation of the poster "Photon-Driven Neural Radiance Caching".
         highlights:
-          - Hardware-accelerated SPPM implementation
-          - NRC implementation using tiny-cuda-nn
-          - Implementation of Photon-NRC
+          - Rebuilt the method as a clean Falcor render graph, improving modularity and performance
+          - Implemented SPPM with hardware-accelerated inverse radius search and stochastic accumulation, NRC via tiny-cuda-nn, and the SPPC training method
       - name: "[BiNRC](https://github.com/julcst/binrc)"
         start_date: 2025-02
         end_date: 2025-09
@@ -100,15 +99,13 @@ cv:
           OptiX implementation of my Bachelor's thesis "Bidirectional Neural
           Radiance Caching".
         highlights:
-          - Hardware-accelerated SPPM implementation
-          - NRC implementation using tiny-cuda-nn
-          - Unbiased path tracer with MIS and NEE
-          - Implementation of basic Disney principled BSDF
-          - Implementation of Photon-NRC
+          - Built an unbiased path tracer with MIS and NEE and a basic Disney principled BSDF
+          - Implemented SPPM with hardware-accelerated inverse radius search
+          - Implemented NRC via tiny-cuda-nn with bidirectional and photon-driven (Photon-NRC) training
       - name: "[nBounce](https://github.com/julcst/nbounce)"
         start_date: 2024-08
         end_date: present
-        summary: Self-educational real-time path tracer with software BVH construction and traversal.
+        summary: Personal real-time path tracer with software BVH construction and traversal.
         highlights:
           - Written in Rust and wgpu
           - SAH-based BVH construction, Owen-scrambled RQMC sampling, VNDF importance sampling
@@ -118,7 +115,7 @@ cv:
         end_date: 2024-03
         summary: Computer Graphics Lab, part of my B.Sc. in Computer Science.
         highlights:
-          - Implementation of the discrete stochastic microfacet model from
+          - Implemented the discrete stochastic microfacet model from
             "Real-Time Rendering of Glinty Appearances Using Distributed
             Binomial Laws on Anisotropic Grids" by Thomas Deliot and Laurent
             Belcour
