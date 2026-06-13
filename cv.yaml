@@ -137,7 +137,7 @@ cv:
       - name: "[monarch-tree](https://github.com/julcst/monarch-tree)"
         start_date: 2023-06
         end_date: 2023-09
-        summary: Submission for the animation competition in IntroCG. Procedural tree and butterfly-swarm simulation.
+        summary: Procedural tree and butterfly-swarm animation for the course "Introduction to Computer Graphics", growing the tree with a self-devised model that emits branches and steers each tip using boids-like forces (up, spread, forward, noise).
     skills:
       - label: Languages
         details: C++, CMake, GLSL, CUDA, Slang, Python, Rust, WGSL, Java
