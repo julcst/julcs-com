@@ -69,7 +69,7 @@ import Layout from '../layouts/Layout.astro';
             vec4 blur(sampler2D image, vec2 uv, vec2 resolution, float blurAmount) {
                 const float kernel[81] = float[81](
                     0.00024414, 0.00079346, 0.00183105, 0.00311279, 0.00366211, 0.00311279, 0.00183105, 0.00079346, 0.00024414,
-                    0.00079346, 0.00257874, 0.00595093, 0.01011658, 0.1190186, 0.01011658, 0.00595093, 0.00257874, 0.00079346,
+                    0.00079346, 0.00257874, 0.00595093, 0.01011658, 0.01190186, 0.01011658, 0.00595093, 0.00257874, 0.00079346,
                     0.00183105, 0.00595093, 0.01373291, 0.02334595, 0.02746582, 0.02334595, 0.01373291, 0.00595093, 0.00183105,
                     0.00311279, 0.01011658, 0.02334595, 0.03968811, 0.04669189, 0.03968811, 0.02334595, 0.01011658, 0.00311279,
                     0.00366211, 0.01190186, 0.02746582, 0.04669189, 0.05493164, 0.04669189, 0.02746582, 0.01190186, 0.00366211,
@@ -179,8 +179,8 @@ import Layout from '../layouts/Layout.astro';
 
         function handleImageUpload(event: Event) {
             const target = event.target as HTMLInputElement;
-            if (!target.files) return;
-            const file = target.files[0];
+            const file = target.files?.[0];
+            if (!file) return;
             const reader = new FileReader();
 
             reader.onload = function (e) {

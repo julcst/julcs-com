@@ -146,8 +146,8 @@ import Layout from '../layouts/Layout.astro';
 
         function handleImageUpload(event: Event) {
             const target = event.target as HTMLInputElement;
-            if (!target.files) return;
-            const file = target.files[0];
+            const file = target.files?.[0];
+            if (!file) return;
             const reader = new FileReader();
 
             reader.onload = function (e) {

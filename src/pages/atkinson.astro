@@ -238,14 +238,16 @@ import Layout from '../layouts/Layout.astro';
             // Create a download link
             let link = document.createElement("a");
             link.download = `atkinson_${(document.getElementById('shapeSelect') as HTMLSelectElement).value}.svg`;
-            link.href = URL.createObjectURL(blob);
+            const url = URL.createObjectURL(blob);
+            link.href = url;
             link.click();
+            URL.revokeObjectURL(url);
         }
 
         function handleImageUpload(event: Event) {
             const target = event.target as HTMLInputElement;
-            if (!target.files) return;
-            const file = target.files[0];
+            const file = target.files?.[0];
+            if (!file) return;
             const reader = new FileReader();
 
             reader.onload = function (e) {

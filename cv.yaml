@@ -15,7 +15,7 @@ cv:
         start_date: 2025-10
         end_date: present
         highlights:
-          - Focus on Real-time GI, Neural Rendering, and Machine Learning
+          - Focus on Real-Time GI, Neural Rendering, and Machine Learning
       - institution: University of Bonn
         area: Computer Science
         degree: B.Sc.
@@ -36,7 +36,7 @@ cv:
     publications:
       - title: "[Photon-Driven Neural Radiance Caching](https://cg.cs.uni-bonn.de/publications/stamm-2026-photon)"
         type: Poster
-        summary: Introduces a new photon-based training method for Neural Radiance Caching, reducing FLIP error by up to 2/3 in caustic scenes with only a ~2 ms frame-time overhead; Continuation of Bachelor's thesis; Presented at I3D 2026.
+        summary: Introduces a new photon-based training method for Neural Radiance Caching, reducing FLIP error by up to two-thirds in caustic scenes with only a ~2 ms frame-time overhead. A continuation of my Bachelor's thesis, presented at I3D 2026.
         authors:
           - Julian C. Stamm
           - Tom Kneiphof
@@ -53,16 +53,16 @@ cv:
         start_date: 2026-02
         end_date: 2026-03
         highlights:
-          - Held daily block tutorials on Nerfs, IK, 3DGS, differentiable rendering etc.
+          - Held daily block tutorials on NeRFs, IK, 3DGS, differentiable rendering, etc.
       - company: University of Bonn
         position: Teaching Assistant for "Introduction to Computer Graphics"
         location: Bonn, Germany
         start_date: 2024-04
         end_date: present
         highlights:
-          - Held weekly tutorials on rasterization, ray tracing, BSDFs, splines etc.
-          - Assisted in creation of exercises and exams
-          - Developed and maintained modern OpenGL/C++ framework used in the exercises and the animation competition
+          - Held weekly tutorials on rasterization, ray tracing, BSDFs, splines, etc.
+          - Assisted in creating exercises and exams
+          - Developed and maintained a modern OpenGL/C++ framework used in the exercises and the animation competition
       - company: Atlas Spare Parts GmbH
         position: Temporary Worker in Software Development Team
         location: Ganderkesee, Germany
@@ -78,7 +78,7 @@ cv:
       - name: "[tsnn](https://github.com/julcst/tsnn) (unpublished)"
         start_date: 2026-05
         end_date: present
-        summary: High performance Slang-native tiny-cuda-nn alternative using Slang's auto-differentiation.
+        summary: High-performance Slang-native tiny-cuda-nn alternative using Slang's auto-differentiation.
         highlights:
           - Implementation of neural spline flows, hash grid encodings, MLPs, Adam, and more
           - Achieves full kernel fusion with Falcor path tracer
@@ -97,7 +97,7 @@ cv:
         start_date: 2025-02
         end_date: 2025-09
         summary:
-          OptiX implementation of my Bachelor Thesis "Bidirectional Neural
+          OptiX implementation of my Bachelor's thesis "Bidirectional Neural
           Radiance Caching".
         highlights:
           - Hardware-accelerated SPPM implementation
@@ -116,7 +116,7 @@ cv:
           Glints](https://github.com/julcst/Lab-ComputerGraphics-WS2023)"
         start_date: 2023-10
         end_date: 2024-03
-        summary: Computer Graphics Lab as part of the B.Sc. Computer Science.
+        summary: Computer Graphics Lab, part of my B.Sc. in Computer Science.
         highlights:
           - Implementation of the discrete stochastic microfacet model from
             "Real-Time Rendering of Glinty Appearances Using Distributed
@@ -132,7 +132,7 @@ cv:
       - name: "[bevy_trail](https://github.com/julcst/bevy_trail)"
         start_date: 2026-04
         end_date: present
-        summary: Bevy plugin for high performance GPU-based trails in wgpu.
+        summary: Bevy plugin for high-performance GPU-based trails in wgpu.
       - name: "P2P Multiplayer Game"
         start_date: 2025-09
         end_date: present
@@ -140,7 +140,7 @@ cv:
       - name: "[monarch-tree](https://github.com/julcst/monarch-tree)"
         start_date: 2023-06
         end_date: 2023-09
-        summary: Submission for animation competition in IntroCG; Procedural tree and butterfly swarm simulation
+        summary: Submission for the animation competition in IntroCG. Procedural tree and butterfly-swarm simulation.
     skills:
       - label: Languages
         details: C++, CMake, GLSL, CUDA, Slang, Python, Rust, WGSL, Java
