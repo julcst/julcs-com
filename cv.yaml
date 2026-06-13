@@ -88,8 +88,7 @@ cv:
         start_date: 2025-02
         end_date: present
         summary:
-          Falcor implementation of my Bachelor Thesis "Bidirectional Neural
-          Radiance Caching" and poster "Photon-Driven Neural Radiance Caching".
+          Falcor implementation of "Photon-Driven Neural Radiance Caching".
         highlights:
           - Hardware-accelerated SPPM implementation
           - NRC implementation using tiny-cuda-nn
