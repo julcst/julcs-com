@@ -1,8 +1,3 @@
----
-title: "Julian Stamm | CV"
-description: "Curriculum vitae of Julian Stamm."
----
-
 # Julian C. Stamm's CV
 
 - Email: [mail@julcs.com](mailto:mail@julcs.com)
@@ -163,6 +158,14 @@ Bevy plugin for high performance GPU-based trails in wgpu.
 Sept 2025 – present
 
 Working on a Python-moddable P2P-multiplayer card game in Rust using bevy.
+
+
+
+## **[monarch tree](https://github.com/julcst/monarch-tree)**
+
+June 2023 – Sept 2023
+
+Submission for animation competition in IntroCG; Procedural tree and butterfly swarm simulation
 
 
 
