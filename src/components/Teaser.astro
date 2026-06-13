@@ -3,13 +3,15 @@ import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 
 export type TeaserMedia = {
-    // Imported image (optimized by Astro) or a public video URL string.
-    src: ImageMetadata | string;
+    // Imported image, optimized by Astro. For animated teasers this is an
+    // animated WebP that loops on its own and acts as the universal fallback.
+    src: ImageMetadata;
     alt: string;
     href?: string;
     pixelated?: boolean;
-    // Static fallback frame shown for videos while (or instead of) they play.
-    poster?: string;
+    // Optional webm (in /public/teasers). Preferred where supported because it
+    // decodes faster and looks better; falls back to the WebP otherwise.
+    video?: string;
 };
 
 interface Props {
@@ -17,39 +19,47 @@ interface Props {
 }
 
 const { media } = Astro.props;
-const isVideo = typeof media.src === "string";
 ---
 
 {
-    isVideo ? (
-        /* The poster shows instantly as a preview and remains as a fallback on
-           browsers that refuse to autoplay (e.g. data-saver / low-power mode).
-           The source is only loaded once the teaser scrolls into view. */
-        <video
-            class="teaser"
-            aria-label={media.alt}
-            poster={media.poster}
-            loop
-            muted
-            playsinline
-            preload="none"
-            data-teaser-video
-            data-src={media.src as string}
-        />
+    media.video ? (
+        /* The WebP shows instantly and stays as the fallback; the webm fades in
+           on top once it actually starts playing (skipped on browsers that
+           can't autoplay it, e.g. iOS). */
+        <div class="teaser teaser-video-wrap">
+            <Image
+                src={media.src}
+                alt={media.alt}
+                width={320}
+                loading="lazy"
+                class="teaser-fallback"
+            />
+            <video
+                class="teaser-video"
+                aria-hidden="true"
+                loop
+                muted
+                playsinline
+                preload="none"
+                data-teaser-video
+                data-src={media.video}
+            />
+        </div>
     ) : media.pixelated ? (
         /* Pixel art: keep it lossless and let the browser scale it with
            nearest-neighbour so the pixels stay crisp. */
         <Image
-            src={media.src as ImageMetadata}
+            src={media.src}
             alt={media.alt}
             format="png"
             class="teaser pixelated"
         />
     ) : (
         <Image
-            src={media.src as ImageMetadata}
+            src={media.src}
             alt={media.alt}
-            width={160}
+            width={320}
+            loading="lazy"
             class="teaser"
         />
     )
@@ -64,46 +74,74 @@ const isVideo = typeof media.src === "string";
         box-shadow: 0.15em 0.15em;
     }
 
-    /* Keep the box square-ish before the video has any intrinsic size, so the
-       poster fills the slot instead of collapsing to zero height. */
-    video.teaser {
-        aspect-ratio: 1 / 1;
-        object-fit: cover;
-        background: var(--background, #000);
-    }
-
     .pixelated {
         image-rendering: pixelated;
+    }
+
+    .teaser-video-wrap {
+        position: relative;
+        overflow: hidden;
+        line-height: 0;
+    }
+
+    .teaser-fallback {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .teaser-video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .teaser-video.is-playing {
+        opacity: 1;
     }
 </style>
 
 <script>
-    // Load and play teaser videos only once they enter the viewport. This keeps
-    // the initial page light (just posters) and works around browsers that
-    // ignore `autoplay` until the element is actually on screen / interacted
-    // with. The bundled module runs once per page regardless of how many
-    // <Teaser> instances are rendered.
+    // Prefer webm where it actually plays: load it lazily once in view, reveal
+    // it over the WebP only after playback starts, and otherwise leave the
+    // animated WebP showing. The bundled module runs once per page regardless
+    // of how many <Teaser> instances are rendered.
     function setupTeaserVideos() {
         const videos = Array.from(
             document.querySelectorAll<HTMLVideoElement>("[data-teaser-video]"),
         );
         if (videos.length === 0) return;
 
-        const reduceMotion = window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-        ).matches;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            return; // leave the (lighter) WebP fallback in place
+        }
 
-        const load = (video: HTMLVideoElement) => {
-            const src = video.dataset.src;
-            if (src && !video.src) {
-                video.src = src;
+        const start = (video: HTMLVideoElement) => {
+            // Skip the webm download entirely if the browser can't play it.
+            if (video.canPlayType && video.canPlayType("video/webm") === "") {
+                return;
+            }
+            if (!video.src && video.dataset.src) video.src = video.dataset.src;
+            const played = video.play();
+            if (played) {
+                played
+                    .then(() => video.classList.add("is-playing"))
+                    .catch(() => {}); // autoplay blocked: keep the WebP
             }
         };
 
-        // No IntersectionObserver (or reduced motion): just load the source so
-        // the poster has a real frame behind it; don't force playback.
+        videos.forEach((video) =>
+            video.addEventListener("playing", () =>
+                video.classList.add("is-playing"),
+            ),
+        );
+
         if (!("IntersectionObserver" in window)) {
-            videos.forEach(load);
+            videos.forEach(start);
             return;
         }
 
@@ -111,15 +149,8 @@ const isVideo = typeof media.src === "string";
             (entries) => {
                 for (const entry of entries) {
                     const video = entry.target as HTMLVideoElement;
-                    if (entry.isIntersecting) {
-                        load(video);
-                        if (!reduceMotion) {
-                            const play = video.play();
-                            if (play) play.catch(() => {});
-                        }
-                    } else if (!video.paused) {
-                        video.pause();
-                    }
+                    if (entry.isIntersecting) start(video);
+                    else if (!video.paused) video.pause();
                 }
             },
             { rootMargin: "200px 0px" },

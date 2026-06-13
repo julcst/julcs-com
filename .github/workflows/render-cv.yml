@@ -3,7 +3,7 @@ name: Render CV
 on:
   push:
     paths:
-      - "_CV.yaml"
+      - "cv.yaml"
   workflow_dispatch:
 
 jobs:
@@ -22,16 +22,14 @@ jobs:
 
       - name: Render CV
         run: |
-          uvx --with "rendercv[full]" rendercv render _CV.yaml
+          uvx --with "rendercv[full]" rendercv render cv.yaml
           # RenderCV creates a folder named 'rendercv_output'
           # We need to find the generated .md and .pdf files
           mkdir -p public/
-          mkdir -p src/content/pages/
           cp rendercv_output/Julian_C._Stamm_CV.pdf public/cv.pdf
-          cp rendercv_output/Julian_C._Stamm_CV.md src/content/pages/cv.md
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: updated cv.pdf via build script"
-          file_pattern: "public/cv.pdf src/content/pages/cv.md"
+          file_pattern: "public/cv.pdf"

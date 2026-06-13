@@ -8,7 +8,7 @@ import TerminalSection from "../components/TerminalSection.astro";
 import CvSection from "../components/CvSection.astro";
 import type { TeaserMedia } from "../components/Teaser.astro";
 import { parse } from "yaml";
-import cvYamlRaw from "../../_CV.yaml?raw";
+import cvYamlRaw from "../../cv.yaml?raw";
 
 const intro = await getEntry("pages", "index");
 if (!intro) throw new Error("Could not find intro content");
@@ -38,25 +38,24 @@ type GeneratedSection = {
     entries: SectionEntry[];
 };
 
-// Images are optimized by Astro, so they live in /src and are imported here.
-// Videos (animated loops) are served as-is from /public/teasers.
+// Teaser images live in /src/teasers so Astro can optimize them; animated
+// teasers are stored as animated WebP there (the universal, iOS-safe fallback).
+// A matching webm in /public/teasers is preferred where supported.
 const teaserImages = import.meta.glob<{ default: ImageMetadata }>(
     "/src/teasers/*.{png,jpg,jpeg,webp}",
     { eager: true },
 );
 
-// Build a teaser from a file in /src/teasers (image) or /public/teasers (video).
-// Videos get a matching `<name>.jpg` poster (generated from the webm via
-// ffmpeg.sh) so a static preview shows instantly and survives browsers that
-// won't autoplay.
-function teaser(file: string, alt: string, pixelated = false): TeaserMedia {
-    if (/\.(webm|mp4)$/i.test(file)) {
-        const poster = file.replace(/\.(webm|mp4)$/i, ".jpg");
-        return { src: `/teasers/${file}`, alt, poster: `/teasers/${poster}` };
-    }
+// Build a teaser from a file in /src/teasers. Pass `video` to prefer a webm
+// (from /public/teasers) over the WebP on browsers that can play it.
+function teaser(
+    file: string,
+    alt: string,
+    opts: { pixelated?: boolean; video?: string } = {},
+): TeaserMedia {
     const image = teaserImages[`/src/teasers/${file}`];
     if (!image) throw new Error(`Missing teaser image: ${file}`);
-    return { src: image.default, alt, pixelated };
+    return { src: image.default, alt, pixelated: opts.pixelated, video: opts.video };
 }
 
 // Teasers shown next to CV entries, matched as a lowercase substring of the
@@ -67,23 +66,29 @@ const CV_TEASERS: { match: string; teaser: TeaserMedia }[] = [
     {
         match: "photon-driven neural radiance caching",
         teaser: teaser(
-            "photonnrc.webm",
+            "photonnrc.webp",
             "Photon-Driven Neural Radiance Caching teaser",
+            { video: "/teasers/photonnrc.webm" },
         ),
     },
     {
         match: "photonnrc",
-        teaser: teaser("photonnrc.webm", "PhotonNRC teaser"),
+        teaser: teaser("photonnrc.webp", "PhotonNRC teaser", {
+            video: "/teasers/photonnrc.webm",
+        }),
     },
     {
         match: "tsnn",
-        teaser: teaser("tsnn.webm", "tsnn neural network library teaser"),
+        teaser: teaser("tsnn.webp", "tsnn neural network library teaser", {
+            video: "/teasers/tsnn.webm",
+        }),
     },
     {
         match: "monarch",
         teaser: teaser(
-            "monarch.webm",
+            "monarch.webp",
             "Monarch tree procedural simulation teaser",
+            { video: "/teasers/monarch.webm" },
         ),
     },
     { match: "binrc", teaser: teaser("binrc.png", "BiNRC teaser") },
@@ -113,11 +118,9 @@ const toolEntries: SectionEntry[] = [
         summary:
             "WebGL Atkinson dithering — turn any image into 1-bit pixel art.",
         media: {
-            ...teaser(
-                "atkinson.png",
-                "Atkinson dithering converter teaser",
-                true,
-            ),
+            ...teaser("atkinson.png", "Atkinson dithering converter teaser", {
+                pixelated: true,
+            }),
             href: "/atkinson",
         },
     },
