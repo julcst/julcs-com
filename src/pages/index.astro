@@ -337,7 +337,7 @@ function buildSkillEntries(items: any): SectionEntry[] {
         .filter((entry) => entry.title);
 }
 
-function buildGenericEntries(sectionKey: string, items: any): SectionEntry[] {
+function buildGenericEntries(items: any): SectionEntry[] {
     return normalizeEntryArray(items)
         .map((item) => {
             const title = getFirstText(item, [
@@ -369,19 +369,16 @@ function buildSectionEntries(sectionKey: string, items: any): SectionEntry[] {
     if (sectionKey === "publications") return buildPublicationEntries(items);
     if (sectionKey === "skills") return buildSkillEntries(items);
 
-    return buildGenericEntries(sectionKey, items);
+    return buildGenericEntries(items);
 }
 
-let yamlSections = null;
-let yamlProfile = null;
+let yamlProfile: EntryRecord | null = null;
 try {
-    const cvYaml = parse(cvYamlRaw);
-    yamlSections = cvYaml?.cv?.sections ?? null;
-    yamlProfile = cvYaml?.cv ?? null;
-} catch (e) {
-    yamlSections = null;
+    yamlProfile = parse(cvYamlRaw)?.cv ?? null;
+} catch {
     yamlProfile = null;
 }
+const yamlSections = yamlProfile?.sections ?? null;
 
 const generatedSections = Object.entries(yamlSections ?? {})
     .map(([sectionKey, sectionValue]): GeneratedSection | null => {
@@ -532,13 +529,6 @@ const profileLinks = [{ label: "download cv", href: "/cv.pdf" }];
         gap: 2rem; /* Tighter spacing between sections */
     }
 
-    .cv-body {
-        display: flex;
-        flex-direction: column;
-        gap: 1.1rem;
-        white-space: normal;
-    }
-
     .scroll-hint {
         margin: 0.8rem 0 0;
         opacity: 0.55;
@@ -604,10 +594,6 @@ const profileLinks = [{ label: "download cv", href: "/cv.pdf" }];
     .cv-empty {
         opacity: 0.7;
         font-size: var(--font-size-sm);
-    }
-
-    .cv-body * {
-        white-space: normal;
     }
 
     /* Smooth scroll behavior */

@@ -39,6 +39,8 @@ import Layout from '../layouts/Layout.astro';
     <canvas id="canvas"></canvas>
 
     <script>
+        import { createShader, createProgram } from '../scripts/webgl';
+
         const vertexShaderSrc =
             `#version 300 es
             in vec2 aPosition;
@@ -68,34 +70,7 @@ import Layout from '../layouts/Layout.astro';
                 fragColor = vec4(bw, bw, bw, 1.0);
             }`;
 
-        function createShader(gl: WebGL2RenderingContext, type: number, source: string) {
-            const shader = gl.createShader(type);
-            if (!shader) return null;
-            gl.shaderSource(shader, source);
-            gl.compileShader(shader);
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                console.error('Shader compilation failed:', gl.getShaderInfoLog(shader));
-                gl.deleteShader(shader);
-                return null;
-            }
-            return shader;
-        }
-
-        function createProgram(gl: WebGL2RenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader) {
-            const program = gl.createProgram();
-            if (!program) return null;
-            gl.attachShader(program, vertexShader);
-            gl.attachShader(program, fragmentShader);
-            gl.linkProgram(program);
-            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-                console.error('Program linking failed:', gl.getProgramInfoLog(program));
-                gl.deleteProgram(program);
-                return null;
-            }
-            return program;
-        }
-
-        let gl: WebGL2RenderingContext | null, program: WebGLProgram | null, positionBuffer: WebGLBuffer | null, imageTexture: WebGLTexture | null, originalImage: any, lThreshold: WebGLUniformLocation | null = null;
+        let gl: WebGL2RenderingContext | null, program: WebGLProgram | null, positionBuffer: WebGLBuffer | null, imageTexture: WebGLTexture | null, lThreshold: WebGLUniformLocation | null = null;
 
         function initWebGL() {
             const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -189,8 +164,7 @@ import Layout from '../layouts/Layout.astro';
             const threshold = parseFloat(target.value);
             if (!gl || !program) return;
             gl.useProgram(program);
-            const thresholdLocation = gl.getUniformLocation(program, 'uThreshold');
-            gl.uniform1f(thresholdLocation, threshold);
+            gl.uniform1f(lThreshold, threshold);
             render();
         }
 

@@ -20,15 +20,14 @@ interface Props {
 }
 
 const { title, id, entries = [] } = Astro.props;
-const safeEntries = Array.isArray(entries) ? entries : [];
 ---
 
 {
-    safeEntries.length > 0 ? (
+    entries.length > 0 ? (
         <section id={id} class="cv-section">
             <h2 class="cv-section-title">{title}</h2>
             <div class="cv-entries">
-                {safeEntries.map((entry) => (
+                {entries.map((entry) => (
                     <article class="cv-entry">
                         <div class="cv-entry-main">
                             <h3 class="cv-entry-title">

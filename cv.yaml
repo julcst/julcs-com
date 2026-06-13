@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/sinaatalay/rendercv/main/schema.json
 cv:
   name: Julian C. Stamm
   location: Bonn, Germany
