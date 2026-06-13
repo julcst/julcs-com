@@ -1,21 +1,19 @@
 ---
 import { getEntry, render } from "astro:content";
+import type { ImageMetadata } from "astro";
 import Layout from "../layouts/Layout.astro";
 import Footer from "../components/Footer.astro";
 import BackgroundSketch from "../components/BackgroundSketch.astro";
 import TerminalSection from "../components/TerminalSection.astro";
 import CvSection from "../components/CvSection.astro";
+import type { TeaserMedia } from "../components/Teaser.astro";
 import { parse } from "yaml";
 import cvYamlRaw from "../../_CV.yaml?raw";
 
-// Fetch all entries
 const intro = await getEntry("pages", "index");
-const tools = await getEntry("pages", "tools");
-
-if (!intro || !tools) throw new Error("Could not find all content entries");
+if (!intro) throw new Error("Could not find intro content");
 
 const { Content: IntroContent } = await render(intro);
-const { Content: ToolsContent } = await render(tools);
 
 type EntryRecord = Record<string, any>;
 
@@ -25,11 +23,7 @@ type SectionEntry = {
     meta?: string;
     summary?: string;
     details?: string[];
-    media?: {
-        src: string;
-        alt: string;
-        href?: string;
-    };
+    media?: TeaserMedia;
 };
 
 type NavLink = {
@@ -43,6 +37,112 @@ type GeneratedSection = {
     title: string;
     entries: SectionEntry[];
 };
+
+// Images are optimized by Astro, so they live in /src and are imported here.
+// Videos (animated loops) are served as-is from /public/teasers.
+const teaserImages = import.meta.glob<{ default: ImageMetadata }>(
+    "/src/teasers/*.{png,jpg,jpeg,webp}",
+    { eager: true },
+);
+
+// Build a teaser from a file in /src/teasers (image) or /public/teasers (video).
+// Videos get a matching `<name>.jpg` poster (generated from the webm via
+// ffmpeg.sh) so a static preview shows instantly and survives browsers that
+// won't autoplay.
+function teaser(file: string, alt: string, pixelated = false): TeaserMedia {
+    if (/\.(webm|mp4)$/i.test(file)) {
+        const poster = file.replace(/\.(webm|mp4)$/i, ".jpg");
+        return { src: `/teasers/${file}`, alt, poster: `/teasers/${poster}` };
+    }
+    const image = teaserImages[`/src/teasers/${file}`];
+    if (!image) throw new Error(`Missing teaser image: ${file}`);
+    return { src: image.default, alt, pixelated };
+}
+
+// Teasers shown next to CV entries, matched as a lowercase substring of the
+// entry title (e.g. "nbounce" hits both the name and the GitHub URL). To add
+// one, drop the file in src/teasers (image) or public/teasers (video) and add
+// a row here.
+const CV_TEASERS: { match: string; teaser: TeaserMedia }[] = [
+    {
+        match: "photon-driven neural radiance caching",
+        teaser: teaser(
+            "photonnrc.webm",
+            "Photon-Driven Neural Radiance Caching teaser",
+        ),
+    },
+    {
+        match: "photonnrc",
+        teaser: teaser("photonnrc.webm", "PhotonNRC teaser"),
+    },
+    {
+        match: "tsnn",
+        teaser: teaser("tsnn.webm", "tsnn neural network library teaser"),
+    },
+    {
+        match: "monarch",
+        teaser: teaser(
+            "monarch.webm",
+            "Monarch tree procedural simulation teaser",
+        ),
+    },
+    { match: "binrc", teaser: teaser("binrc.png", "BiNRC teaser") },
+    {
+        match: "nbounce",
+        teaser: teaser("nbounce.png", "nBounce real-time path tracer teaser"),
+    },
+    {
+        match: "glints",
+        teaser: teaser("glints.png", "Mesoscopic glints simulation teaser"),
+    },
+    {
+        match: "gltemplate",
+        teaser: teaser("gltemplate.png", "gltemplate OpenGL framework teaser"),
+    },
+];
+
+function findTeaser(title: string): TeaserMedia | undefined {
+    const haystack = title.toLowerCase();
+    return CV_TEASERS.find((entry) => haystack.includes(entry.match))?.teaser;
+}
+
+// Interactive tools, each rendered with its own teaser.
+const toolEntries: SectionEntry[] = [
+    {
+        title: "[Atkinson Dithering Converter](/atkinson)",
+        summary:
+            "WebGL Atkinson dithering — turn any image into 1-bit pixel art.",
+        media: {
+            ...teaser(
+                "atkinson.png",
+                "Atkinson dithering converter teaser",
+                true,
+            ),
+            href: "/atkinson",
+        },
+    },
+    {
+        title: "[B&W Converter](/bwconvert)",
+        summary:
+            "Hardware-accelerated luminance-preserving black & white conversion.",
+        media: {
+            ...teaser("bw-convert.png", "Black & white converter teaser"),
+            href: "/bwconvert",
+        },
+    },
+    {
+        title: "[Stencil Converter](/stencilconvert)",
+        summary: "WebGL gaussian blur + thresholding for stencil-ready images.",
+        media: {
+            ...teaser("stencil.png", "Stencil converter teaser"),
+            href: "/stencilconvert",
+        },
+    },
+];
+
+function firstUrl(text: string): string | undefined {
+    return text.match(/\]\(([^)]+)\)/)?.[1];
+}
 
 const monthNames = [
     "Jan",
@@ -175,8 +275,18 @@ function buildProjectEntries(items: any): SectionEntry[] {
             const date = formatDateRange(item.start_date, item.end_date);
             const summary = buildEntrySummary(item);
             const details = buildEntryDetails(item);
+            const teaser = findTeaser(title);
 
-            return { title, date, meta: "", summary, details };
+            return {
+                title,
+                date,
+                meta: "",
+                summary,
+                details,
+                media: teaser
+                    ? { ...teaser, href: firstUrl(title) }
+                    : undefined,
+            };
         })
         .filter((entry) => entry.title);
 }
@@ -188,9 +298,6 @@ function buildPublicationEntries(items: any): SectionEntry[] {
             const date = formatDate(item.date);
             const meta = normalizeStringArray(item.authors).join(", ");
             const summary = buildEntrySummary(item);
-            const isPhotonNrc = title
-                .toLowerCase()
-                .includes("photon-driven neural radiance caching");
             const details = [
                 normalizeText(item.type),
                 normalizeText(item.journal ?? item.venue),
@@ -200,19 +307,17 @@ function buildPublicationEntries(items: any): SectionEntry[] {
                 item.doi ? `[${item.doi}](https://doi.org/${item.doi})` : "",
             ].filter(Boolean);
 
+            const teaser = findTeaser(title);
+            const href =
+                firstUrl(title) || normalizeText(item.url) || undefined;
+
             return {
                 title,
                 date,
                 meta,
                 summary,
                 details,
-                media: isPhotonNrc
-                    ? {
-                          src: "/PhotonNRC.gif",
-                          alt: "Animated teaser for Photon-Driven Neural Radiance Caching",
-                          href: normalizeText(item.url) || undefined,
-                      }
-                    : undefined,
+                media: teaser ? { ...teaser, href } : undefined,
             };
         })
         .filter((entry) => entry.title);
@@ -345,29 +450,16 @@ const navLinks: NavLink[] = [
     { label: "tools", href: "#tools", dataNav: "tools" },
 ];
 
-const today = new Date();
-const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
+const profileLinks = [{ label: "download cv", href: "/cv.pdf" }];
 ---
 
 <Layout title={intro.data.title} description={intro.data.description}>
     <BackgroundSketch />
 
-    <!-- Fixed Intro Box (Collapses to Header) -->
+    <!-- Fixed intro box that collapses into the header on scroll -->
     <TerminalSection isIntro={true} navLinks={navLinks}>
         <IntroContent />
-        <p>
-            {
-                navLinks.map((link) => (
-                    <>
-                        <a href={link.href} data-nav={link.dataNav}>
-                            &gt; {link.label}
-                        </a>
-                        <br />
-                    </>
-                ))
-            }
-        </p>
-        <p>{dateStr} - julcs</p>
+        <p class="scroll-hint">scroll ↓</p>
     </TerminalSection>
 
     <!-- Scrollable Content Area -->
@@ -397,6 +489,11 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFul
                                 ))}
                             </div>
                         ) : null}
+                        <div class="cv-profile-links">
+                            {profileLinks.map((link) => (
+                                <a href={link.href}>&gt; {link.label}</a>
+                            ))}
+                        </div>
                     </div>
                 ) : (
                     <div class="cv-empty">CV data unavailable.</div>
@@ -416,7 +513,7 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFul
         }
 
         <TerminalSection id="tools" class="content-box">
-            <ToolsContent />
+            <CvSection title="Tools" entries={toolEntries} />
         </TerminalSection>
     </div>
 
@@ -439,10 +536,40 @@ const dateStr = `${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFul
         white-space: normal;
     }
 
+    .scroll-hint {
+        margin: 0.8rem 0 0;
+        opacity: 0.55;
+        animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%,
+        100% {
+            opacity: 0.25;
+        }
+        50% {
+            opacity: 0.7;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .scroll-hint {
+            animation: none;
+        }
+    }
+
     .cv-profile {
         display: flex;
         flex-direction: column;
         gap: 0.35rem;
+    }
+
+    .cv-profile-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem 1.2rem;
+        margin-top: 0.6rem;
+        font-size: var(--font-size-sm);
     }
 
     .cv-profile-name {

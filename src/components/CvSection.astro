@@ -1,6 +1,8 @@
 ---
 import InlineText from "./InlineText.astro";
 import CvDate from "./CvDate.astro";
+import Teaser from "./Teaser.astro";
+import type { TeaserMedia } from "./Teaser.astro";
 
 interface Entry {
     title: string;
@@ -8,11 +10,7 @@ interface Entry {
     meta?: string;
     summary?: string;
     details?: string[];
-    media?: {
-        src: string;
-        alt: string;
-        href?: string;
-    };
+    media?: TeaserMedia;
 }
 
 interface Props {
@@ -62,22 +60,11 @@ const safeEntries = Array.isArray(entries) ? entries : [];
                             {entry.media ? (
                                 <div class="cv-entry-media">
                                     {entry.media.href ? (
-                                        <a
-                                            href={entry.media.href}
-                                            class="cv-entry-media-link"
-                                        >
-                                            <img
-                                                src={entry.media.src}
-                                                alt={entry.media.alt}
-                                                loading="lazy"
-                                            />
+                                        <a href={entry.media.href}>
+                                            <Teaser media={entry.media} />
                                         </a>
                                     ) : (
-                                        <img
-                                            src={entry.media.src}
-                                            alt={entry.media.alt}
-                                            loading="lazy"
-                                        />
+                                        <Teaser media={entry.media} />
                                     )}
                                 </div>
                             ) : null}
@@ -167,18 +154,6 @@ const safeEntries = Array.isArray(entries) ? entries : [];
         width: 80px;
     }
 
-    .cv-entry-media img {
-        display: block;
-        width: 100%;
-        height: auto;
-        border: 1px solid currentColor;
-        box-shadow: 0.15em 0.15em;
-    }
-
-    .cv-entry-media-link {
-        display: block;
-    }
-
     @media (max-width: 600px) {
         .cv-entry {
             grid-template-columns: 1fr;
@@ -216,12 +191,5 @@ const safeEntries = Array.isArray(entries) ? entries : [];
         position: absolute;
         left: 0;
         opacity: 0.7;
-    }
-
-    @media (max-width: 700px) {
-        .cv-entry-head {
-            grid-template-columns: 1fr;
-            row-gap: 0.35rem;
-        }
     }
 </style>

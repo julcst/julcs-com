@@ -1,18 +1,18 @@
 ---
+interface NavLink {
+    label: string;
+    href: string;
+    dataNav: string;
+}
+
 interface Props {
     id?: string;
     class?: string;
     isIntro?: boolean;
-    navLinks?: { label: string; href: string; dataNav: string }[];
+    navLinks?: NavLink[];
 }
 
 const { id, class: className, isIntro = false, navLinks = [] } = Astro.props;
-const defaultNavLinks = [
-    { label: "cv", href: "#cv", dataNav: "cv" },
-    { label: "projects", href: "#projects", dataNav: "projects" },
-    { label: "tools", href: "#tools", dataNav: "tools" },
-];
-const resolvedNavLinks = navLinks.length > 0 ? navLinks : defaultNavLinks;
 ---
 
 <section
@@ -28,12 +28,8 @@ const resolvedNavLinks = navLinks.length > 0 ? navLinks : defaultNavLinks;
             <nav class="header-nav">
                 <span class="site-title">julcs.com</span>
                 <div class="nav-links">
-                    {resolvedNavLinks.map((link) => (
-                        <a
-                            href={link.href}
-                            data-nav={link.dataNav}
-                            class="nav-btn"
-                        >
+                    {navLinks.map((link) => (
+                        <a href={link.href} data-nav={link.dataNav}>
                             {link.label}
                         </a>
                     ))}
@@ -60,55 +56,69 @@ const resolvedNavLinks = navLinks.length > 0 ? navLinks : defaultNavLinks;
         z-index: 1;
     }
 
+    .content-box {
+        margin: 2em auto;
+        width: 80%;
+        max-width: 1200px;
+    }
+
+    .typed {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    /* --- Fixed intro box that collapses into a header on scroll --- */
     .intro-box {
         position: fixed;
         top: 1em;
         left: 1em;
         width: calc(100% - 2em);
-        max-width: 30ex;
+        max-width: 32ex;
         z-index: 100;
         overflow: visible;
     }
 
     .header-nav {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        width: 100%;
-        margin-bottom: 0;
-        line-height: 1.1;
         gap: 1rem;
-        flex-wrap: wrap;
-        row-gap: 0.3rem;
+        width: 100%;
+        line-height: 1.1;
         opacity: 0;
         max-height: 0;
+        overflow: hidden;
+        pointer-events: none;
         transition:
             opacity 0.4s ease,
-            max-height 0.4s ease,
-            margin 0.4s ease;
-        pointer-events: none;
+            max-height 0.4s ease;
     }
 
     .site-title {
-        font-weight: bold;
         flex: 0 0 auto;
+        font-weight: bold;
         white-space: nowrap;
     }
 
+    /* Single non-wrapping row; scrolls horizontally if it overflows */
     .nav-links {
         display: flex;
-        gap: 1.1em;
         flex: 1 1 auto;
         justify-content: flex-end;
-        min-width: 0;
-        flex-wrap: wrap;
+        gap: 1.1em;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .nav-links::-webkit-scrollbar {
+        display: none;
     }
 
     .nav-links a {
+        white-space: nowrap;
         text-transform: lowercase;
         opacity: 0.6;
         transition: opacity 0.2s;
-        white-space: nowrap;
     }
 
     .nav-links a.active {
@@ -116,7 +126,6 @@ const resolvedNavLinks = navLinks.length > 0 ? navLinks : defaultNavLinks;
         text-decoration: underline;
     }
 
-    /* Collapse effect when scrolled */
     :global(body.scrolled) .intro-box {
         top: 0;
         left: 0;
@@ -126,13 +135,12 @@ const resolvedNavLinks = navLinks.length > 0 ? navLinks : defaultNavLinks;
         border-left: none;
         border-right: none;
         box-shadow: none;
-        padding: 0.4em 1.5em;
+        padding: 0.5em 1.5em;
     }
 
     :global(body.scrolled) .header-nav {
         opacity: 1;
-        max-height: 2em;
-        margin-bottom: 0;
+        max-height: 2.5em;
         pointer-events: auto;
     }
 
@@ -140,363 +148,197 @@ const resolvedNavLinks = navLinks.length > 0 ? navLinks : defaultNavLinks;
         display: none;
     }
 
-    /* Smoothly hide intro content when collapsed */
-    :global(body.scrolled) .intro-box :global(h1),
-    :global(body.scrolled) .intro-box :global(p),
-    :global(body.scrolled) .intro-box :global(ul) {
-        opacity: 0;
-        max-height: 0;
-        margin: 0;
-        padding: 0;
-        pointer-events: none;
-        transition:
-            opacity 0.3s ease,
-            max-height 0.3s ease,
-            margin 0.3s ease;
-    }
-
-    /* Initial state for intro content (visible) */
-    .intro-box :global(h1),
-    .intro-box :global(p),
-    .intro-box :global(ul) {
-        opacity: 1;
-        max-height: 1000px;
-        transition:
-            opacity 0.5s ease,
-            max-height 0.5s ease,
-            margin 0.5s ease;
-    }
-
-    .content-box {
-        margin: 2em auto;
-        width: 80%;
-        max-width: 1200px;
-    }
-
-    .terminal-frame {
-        display: block;
-    }
-
-    .typed {
-        display: block;
-        white-space: normal;
-        overflow-wrap: anywhere;
-    }
-
     @media (max-width: 800px) {
         .content-box {
             width: calc(100% - 2em);
         }
-        .nav-links {
-            gap: 1em;
-        }
         :global(body.scrolled) .intro-box {
-            padding: 0.8em 1em;
+            padding: 0.6em 1em;
         }
     }
 
+    /* On narrow screens drop the title so the nav keeps to one tidy line */
     @media (max-width: 640px) {
-        .header-nav {
-            gap: 0.6rem;
+        .site-title {
+            display: none;
         }
         .nav-links {
-            gap: 0.7em;
-            font-size: 0.92em;
+            justify-content: flex-start;
+            gap: 0.9em;
         }
     }
 </style>
 
 <script>
-    // --- SCROLL & NAV LOGIC ---
-    const navLinks = document.querySelectorAll(".nav-links a");
-    const sections = document.querySelectorAll(".content-box");
-
-    window.addEventListener("scroll", () => {
-        if (window.scrollY > 50) {
-            document.body.classList.add("scrolled");
-        } else {
-            document.body.classList.remove("scrolled");
-        }
-
-        let current = "";
-        sections.forEach((section) => {
-            const sectionTop = (section as HTMLElement).offsetTop;
-            if (window.scrollY >= sectionTop - 150) {
-                current = section.getAttribute("id") || "";
-            }
-        });
-
-        navLinks.forEach((link) => {
-            link.classList.remove("active");
-            if (link.getAttribute("data-nav") === current) {
-                link.classList.add("active");
-            }
-        });
-    });
-
-    // --- PER-LINE TYPEWRITER LOGIC ---
-    const lineSelector =
-        ".typed :is(h1, h2, h3, h4, h5, h6, p, li, .cv-entry-date, .cv-entry-meta, .cv-entry-summary, .cv-profile-name, .cv-profile-item, .obfuscate-line)";
-    const sectionTargets = Array.from(
-        document.querySelectorAll(".terminal-box"),
-    ) as HTMLElement[];
-
-    type TextNodeState = {
-        node: Text;
-        originalText: string;
-    };
-
-    type TargetState = {
-        textNodes: TextNodeState[];
-        isTyping: boolean;
-        cancelTyping: (() => void) | null;
-        shouldResetOnFinish: boolean;
-    };
-
-    const lineStates = new WeakMap<HTMLElement, TargetState>();
-
-    function createRandomTail(length: number) {
-        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+-=?";
-        let result = "";
-
-        for (let index = 0; index < length; index += 1) {
-            result += characters[Math.floor(Math.random() * characters.length)];
-        }
-
-        return result;
-    }
-
-    function createRandomCharacter() {
-        return createRandomTail(1);
-    }
-
-    function createRandomCharacterExcept(forbiddenCharacter: string) {
-        let randomCharacter = createRandomCharacter();
-
-        if (!forbiddenCharacter) return randomCharacter;
-
-        while (randomCharacter === forbiddenCharacter) {
-            randomCharacter = createRandomCharacter();
-        }
-
-        return randomCharacter;
-    }
-
-    function waitForNextPaint() {
-        return new Promise<void>((resolve) => {
-            requestAnimationFrame(() => resolve());
-        });
-    }
-
-    function collectTextNodes(rootNode: Node) {
-        const textNodes: TextNodeState[] = [];
-
-        function walk(node: Node) {
-            if (node.nodeType === Node.TEXT_NODE) {
-                const text = node.textContent || "";
-                if (text.trim().length === 0 && text.includes("\n")) return;
-
-                textNodes.push({ node: node as Text, originalText: text });
-                node.textContent = "";
-                return;
-            }
-
-            Array.from(node.childNodes).forEach(walk);
-        }
-
-        walk(rootNode);
-        return textNodes;
-    }
-
-    function getLineState(rootNode: HTMLElement): TargetState {
-        const existingState = lineStates.get(rootNode);
-        if (existingState) return existingState;
-
-        const textNodes = collectTextNodes(rootNode);
-        const state: TargetState = {
-            textNodes,
-            isTyping: false,
-            cancelTyping: null,
-            shouldResetOnFinish: false,
-        };
-
-        lineStates.set(rootNode, state);
-        rootNode.dataset.typed = "false";
-        rootNode.style.opacity = "0";
-
-        return state;
-    }
-
-    function restoreLine(rootNode: HTMLElement, state: TargetState) {
-        state.textNodes.forEach((item) => {
-            item.node.textContent = "";
-        });
-
-        rootNode.style.opacity = "0";
-        rootNode.dataset.typed = "false";
-    }
-
-    function renderScrambledTail(text: string, visibleCount: number) {
-        if (visibleCount <= 0) return "";
-
-        const tailWindow = Math.min(50, visibleCount);
-        const prefix = text.slice(0, visibleCount - tailWindow);
-        const tail = text.slice(visibleCount - tailWindow, visibleCount);
-
-        const scrambledTail = tail
-            .split("")
-            .map((character, index) => {
-                const distanceFromEnd = tail.length - 1 - index;
-                const isLastCharacter = distanceFromEnd === 0;
-                const originalBias = Math.min(
-                    0.92,
-                    0.18 + distanceFromEnd * 0.18,
-                );
-
-                if (isLastCharacter) {
-                    return createRandomCharacterExcept(character);
-                }
-
-                return Math.random() < originalBias
-                    ? character
-                    : createRandomCharacter();
-            })
-            .join("");
-
-        return `${prefix}${scrambledTail}`;
-    }
-
-    async function typeNode(
-        rootNode: HTMLElement,
-        state: TargetState,
-    ): Promise<void> {
-        if (state.isTyping) return;
-
-        state.isTyping = true;
-        state.shouldResetOnFinish = false;
-        rootNode.style.opacity = "1";
-
-        let cancelled = false;
-        state.cancelTyping = () => {
-            cancelled = true;
-        };
-
-        const typeSpeed = 0;
-        const scrambleFrames = 1;
-        const scrambleDelay = 5;
-
-        try {
-            for (const item of state.textNodes) {
-                for (
-                    let visibleCount = 0;
-                    visibleCount <= item.originalText.length;
-                    visibleCount += 1
-                ) {
-                    if (cancelled) return;
-
-                    if (visibleCount === 0) {
-                        item.node.textContent = "";
-                    } else {
-                        for (
-                            let frame = 0;
-                            frame < scrambleFrames;
-                            frame += 1
-                        ) {
-                            if (cancelled) return;
-                            item.node.textContent = renderScrambledTail(
-                                item.originalText,
-                                visibleCount,
-                            );
-                            await waitForNextPaint();
-                            if (scrambleDelay > 0) {
-                                await new Promise((resolve) =>
-                                    setTimeout(resolve, scrambleDelay),
-                                );
-                            }
-                        }
-
-                        item.node.textContent = item.originalText.slice(
-                            0,
-                            visibleCount,
-                        );
-                    }
-
-                    await new Promise((resolve) =>
-                        setTimeout(resolve, typeSpeed),
-                    );
-                }
-            }
-            rootNode.dataset.typed = "true";
-        } finally {
-            state.isTyping = false;
-            state.cancelTyping = null;
-
-            if (state.shouldResetOnFinish) {
-                restoreLine(rootNode, state);
-            }
-        }
-    }
-
-    function startTyping(target: HTMLElement) {
-        const state = getLineState(target);
-
-        if (state.isTyping || target.dataset.typed === "true") return;
-
-        void typeNode(target, state);
-    }
-
-    function resetTyping(target: HTMLElement) {
-        const state = getLineState(target);
-
-        state.shouldResetOnFinish = true;
-
-        if (state.cancelTyping) {
-            state.cancelTyping();
-            return;
-        }
-
-        restoreLine(target, state);
-    }
-
-    function getSectionLineTargets(section: HTMLElement) {
-        return Array.from(
-            section.querySelectorAll(lineSelector),
-        ) as HTMLElement[];
-    }
-
-    function startSectionTyping(section: HTMLElement) {
-        getSectionLineTargets(section).forEach((target) => startTyping(target));
-    }
-
-    function resetSectionTyping(section: HTMLElement) {
-        getSectionLineTargets(section).forEach((target) => resetTyping(target));
-    }
-
-    const observer = new IntersectionObserver(
-        (entries) => {
-            entries.forEach((entry) => {
-                const section = entry.target as HTMLElement;
-
-                if (entry.isIntersecting) {
-                    startSectionTyping(section);
-                    return;
-                }
-
-                resetSectionTyping(section);
-            });
-        },
-        {
-            threshold: 0.15,
-            rootMargin: "0px 0px -10% 0px",
-        },
+    // ----- Collapse header + highlight the active section on scroll -----
+    const navLinks = Array.from(
+        document.querySelectorAll<HTMLAnchorElement>(".nav-links a"),
+    );
+    const sections = Array.from(
+        document.querySelectorAll<HTMLElement>(".content-box"),
     );
 
-    sectionTargets.forEach((section) => observer.observe(section));
+    function updateScrollState() {
+        document.body.classList.toggle("scrolled", window.scrollY > 50);
 
-    sectionTargets.forEach((section) => {
-        const rect = section.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-            startSectionTyping(section);
+        const vh = window.innerHeight;
+        const maxScroll = document.documentElement.scrollHeight - vh;
+
+        // Reference line sits ~35% down the viewport. Over the final screenful
+        // it slides toward the bottom of the viewport, so the short trailing
+        // sections — which can never scroll up to the 35% line — still each
+        // get highlighted in turn instead of being skipped.
+        const bottomT =
+            maxScroll > 0
+                ? Math.min(1, Math.max(0, (window.scrollY - maxScroll + vh) / vh))
+                : 1;
+        const refLine = window.scrollY + vh * (0.35 + 0.6 * bottomT);
+
+        let currentId = sections[0]?.id ?? "";
+        for (const section of sections) {
+            if (section.offsetTop <= refLine) currentId = section.id;
         }
+
+        for (const link of navLinks) {
+            link.classList.toggle("active", link.dataset.nav === currentId);
+        }
+    }
+
+    window.addEventListener("scroll", updateScrollState, { passive: true });
+    updateScrollState();
+
+    // ----- "Decode" typing effect -----
+    // Reveals each line left to right; only a few trailing characters scramble
+    // at a time, so it reads as a typewriter rather than a chaotic flicker.
+    const LINE_SELECTOR =
+        ".typed :is(h1, h2, h3, h4, h5, h6, p, li, .cv-entry-date, .cv-entry-meta, .cv-entry-summary, .cv-profile-name, .cv-profile-item, .obfuscate-line)";
+    const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+-=?";
+    const SCRAMBLE_WINDOW = 3; // trailing characters that flicker before locking
+    const STEP_DELAY = 18; // ms between characters (typing speed)
+
+    const randomChar = () =>
+        SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    type Segment = { node: Text; text: string };
+    type Line = {
+        el: HTMLElement;
+        segments: Segment[];
+        typing: boolean;
+        cancel: boolean;
+        done: boolean;
+    };
+
+    const lines = new WeakMap<HTMLElement, Line>();
+
+    function collectSegments(root: Node, out: Segment[]) {
+        for (const node of Array.from(root.childNodes)) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const text = node.textContent ?? "";
+                // Skip whitespace-only formatting nodes.
+                if (text.trim().length === 0 && text.includes("\n")) continue;
+                out.push({ node: node as Text, text });
+                node.textContent = "";
+            } else {
+                collectSegments(node, out);
+            }
+        }
+    }
+
+    function setup(el: HTMLElement): Line {
+        const existing = lines.get(el);
+        if (existing) return existing;
+
+        // Reserve the line's final height so revealing characters never
+        // reflows surrounding content (which would jolt the scroll position).
+        // The fixed intro collapses via CSS, so it must stay free to shrink.
+        if (!el.closest(".intro-box")) {
+            el.style.minHeight = `${el.offsetHeight}px`;
+        }
+
+        const segments: Segment[] = [];
+        collectSegments(el, segments);
+        el.style.opacity = "0";
+
+        const line: Line = {
+            el,
+            segments,
+            typing: false,
+            cancel: false,
+            done: false,
+        };
+        lines.set(el, line);
+        return line;
+    }
+
+    function partial(text: string, count: number) {
+        const solid = Math.max(0, count - SCRAMBLE_WINDOW);
+        let out = text.slice(0, solid);
+        for (let i = solid; i < count; i++) {
+            // Keep whitespace intact so words wrap exactly as in the final
+            // text — otherwise scrambling a space can add a line and push the
+            // reserved height, resizing the box.
+            out += /\s/.test(text[i]) ? text[i] : randomChar();
+        }
+        return out;
+    }
+
+    async function typeLine(line: Line) {
+        if (line.typing || line.done) return;
+        line.typing = true;
+        line.cancel = false;
+        line.el.style.opacity = "1";
+
+        for (const segment of line.segments) {
+            for (let count = 1; count <= segment.text.length; count++) {
+                if (line.cancel) {
+                    line.typing = false;
+                    return;
+                }
+                segment.node.textContent = partial(segment.text, count);
+                await sleep(STEP_DELAY);
+            }
+            segment.node.textContent = segment.text;
+        }
+
+        line.typing = false;
+        line.done = true;
+    }
+
+    function resetLine(line: Line) {
+        line.cancel = true;
+        line.typing = false;
+        line.done = false;
+        for (const segment of line.segments) segment.node.textContent = "";
+        line.el.style.opacity = "0";
+    }
+
+    const sectionLines = (section: HTMLElement) =>
+        Array.from(section.querySelectorAll<HTMLElement>(LINE_SELECTOR));
+
+    // Measure heights only once webfonts are ready so reservations are correct.
+    document.fonts.ready.then(() => {
+        const reduceMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+        ).matches;
+        if (reduceMotion) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    const section = entry.target as HTMLElement;
+                    for (const el of sectionLines(section)) {
+                        const line = setup(el);
+                        if (entry.isIntersecting) typeLine(line);
+                        else resetLine(line);
+                    }
+                }
+            },
+            { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
+        );
+
+        document
+            .querySelectorAll<HTMLElement>(".terminal-box")
+            .forEach((section) => observer.observe(section));
     });
 </script>
