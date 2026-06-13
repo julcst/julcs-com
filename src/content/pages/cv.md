@@ -161,7 +161,7 @@ Working on a Python-moddable P2P-multiplayer card game in Rust using bevy.
 
 
 
-## **[monarch tree](https://github.com/julcst/monarch-tree)**
+## **[monarch-tree](https://github.com/julcst/monarch-tree)**
 
 June 2023 – Sept 2023
 
