@@ -136,7 +136,7 @@ cv:
         start_date: 2025-09
         end_date: present
         summary: Working on a Python-moddable P2P-multiplayer card game in Rust using bevy.
-      - name: "[monarch tree](https://github.com/julcst/monarch-tree)"
+      - name: "[monarch-tree](https://github.com/julcst/monarch-tree)"
         start_date: 2023-06
         end_date: 2023-09
         summary: Submission for animation competition in IntroCG; Procedural tree and butterfly swarm simulation
