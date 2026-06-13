@@ -91,7 +91,7 @@ cv:
           Falcor implementation of the poster "Photon-Driven Neural Radiance Caching".
         highlights:
           - Rebuilt the method as a clean Falcor render graph, improving modularity and performance
-          - Implemented SPPM with hardware-accelerated inverse radius search and stochastic accumulation, NRC via tiny-cuda-nn, and the SPPC training method
+          - Implemented SPPM with hardware-accelerated inverse radius search and stochastic accumulation, NRC via tiny-cuda-nn, and SPPC training
       - name: "[BiNRC](https://github.com/julcst/binrc)"
         start_date: 2025-02
         end_date: 2025-09
