@@ -130,7 +130,7 @@ cv:
       - name: "[bevy_trail](https://github.com/julcst/bevy_trail)"
         start_date: 2026-04
         end_date: present
-        summary: Bevy plugin for high-performance GPU-based trails in wgpu.
+        summary: Work-in-progress bevy plugin for high-performance GPU-based trails in wgpu.
       - name: "P2P Multiplayer Game"
         start_date: 2025-09
         end_date: present
