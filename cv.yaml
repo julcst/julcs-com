@@ -111,6 +111,7 @@ cv:
         summary: Self-educational real-time path tracer with software BVH construction and traversal.
         highlights:
           - Written in Rust and wgpu
+          - SAH-based BVH construction, Owen-scrambled RQMC sampling, VNDF importance sampling
       - name: "[Stable Real-Time Simulation of Mesoscopic
           Glints](https://github.com/julcst/Lab-ComputerGraphics-WS2023)"
         start_date: 2023-10

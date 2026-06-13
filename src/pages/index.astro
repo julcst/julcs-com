@@ -55,7 +55,12 @@ function teaser(
 ): TeaserMedia {
     const image = teaserImages[`/src/teasers/${file}`];
     if (!image) throw new Error(`Missing teaser image: ${file}`);
-    return { src: image.default, alt, pixelated: opts.pixelated, video: opts.video };
+    return {
+        src: image.default,
+        alt,
+        pixelated: opts.pixelated,
+        video: opts.video,
+    };
 }
 
 // Teasers shown next to CV entries, matched as a lowercase substring of the
@@ -491,7 +496,21 @@ const profileLinks = [{ label: "download cv", href: "/cv.pdf" }];
                         ) : null}
                         <div class="cv-profile-links">
                             {profileLinks.map((link) => (
-                                <a href={link.href}>&gt; {link.label}</a>
+                                <a
+                                    class="cv-download"
+                                    href={link.href}
+                                    download
+                                >
+                                    <span class="cv-download-label">
+                                        {link.label}
+                                    </span>
+                                    <span
+                                        class="cv-download-arrow"
+                                        aria-hidden="true"
+                                    >
+                                        ↓
+                                    </span>
+                                </a>
                             ))}
                         </div>
                     </div>
@@ -560,9 +579,50 @@ const profileLinks = [{ label: "download cv", href: "/cv.pdf" }];
     .cv-profile-links {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.4rem 1.2rem;
-        margin-top: 0.6rem;
+        gap: 0.6rem 1rem;
+        margin-top: 0.9rem;
+    }
+
+    .cv-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.45rem 0.85rem;
+        border: 1px solid currentColor;
         font-size: var(--font-size-sm);
+        font-weight: 600;
+        letter-spacing: var(--letter-spacing-wide);
+        text-transform: uppercase;
+        text-decoration: none;
+        background-color: var(--color-front);
+        color: var(--color-bg);
+        transition:
+            color 0.18s ease,
+            background-color 0.18s ease;
+    }
+
+    .cv-download-arrow {
+        display: inline-block;
+        transition: transform 0.18s ease;
+    }
+
+    @media (hover: hover) {
+        .cv-download:hover {
+            background-color: var(--color-bg);
+            color: var(--color-front);
+            text-decoration: none;
+        }
+
+        .cv-download:hover .cv-download-arrow {
+            transform: translateY(0.18rem);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .cv-download,
+        .cv-download-arrow {
+            transition: none;
+        }
     }
 
     .cv-profile-name {
