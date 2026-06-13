@@ -36,7 +36,7 @@ cv:
     publications:
       - title: "[Photon-Driven Neural Radiance Caching](https://cg.cs.uni-bonn.de/publications/stamm-2026-photon)"
         type: Poster
-        summary: Continuation of Bachelor's Thesis "Bidirectional Neural Radiance Caching" with focus on Photon trained NRC. Presented at I3D 2026.
+        summary: Introduces a new photon-based training method for Neural Radiance Caching, reducing FLIP error by up to 2/3 in caustic scenes with only a ~2 ms frame-time overhead; Continuation of Bachelor's thesis; Presented at I3D 2026.
         authors:
           - Julian C. Stamm
           - Tom Kneiphof
@@ -44,7 +44,7 @@ cv:
         doi: 10.1145/3807895.3807923
         url: https://cg.cs.uni-bonn.de/publications/stamm-2026-photon
         date: 2026-05
-        journal: I3D Companion '26
+        journal: I3D Companion 2026
     experience:
       - company: University of Bonn
         position: Teaching Assistant for "Foundations of 4D/6D Object
