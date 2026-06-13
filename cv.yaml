@@ -78,7 +78,7 @@ cv:
       - name: "[tsnn](https://github.com/julcst/tsnn) (unpublished)"
         start_date: 2026-05
         end_date: present
-        summary: High performance Slang-native tiny-cuda-nn alternative with Slangs auto-differentiation.
+        summary: High performance Slang-native tiny-cuda-nn alternative using Slang's auto-differentiation.
         highlights:
           - Implementation of neural spline flows, hash grid encodings, MLPs, Adam, and more
           - Achieves full kernel fusion with Falcor path tracer
@@ -88,7 +88,7 @@ cv:
         start_date: 2025-02
         end_date: present
         summary:
-          Falcor implementation of "Photon-Driven Neural Radiance Caching".
+          Falcor implementation of poster "Photon-Driven Neural Radiance Caching".
         highlights:
           - Hardware-accelerated SPPM implementation
           - NRC implementation using tiny-cuda-nn
