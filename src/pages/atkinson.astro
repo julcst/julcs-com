@@ -273,8 +273,9 @@ import Layout from '../layouts/Layout.astro';
             document.getElementById('downloadSVG')?.addEventListener('click', downloadSVG);
             document.getElementById('scale')?.addEventListener('input', processImage);
             document.getElementById('colorCheckbox')?.addEventListener('change', applyAtkinson);
-            // Note: Changing the shape doesn't need to re-process the canvas image, 
+            // Note: Changing the shape doesn't need to re-process the canvas image,
             // as the shape is only applied during SVG export.
+            loadImage('/space.jpg'); // preselected example
         }
 
         init();

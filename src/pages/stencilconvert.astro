@@ -224,6 +224,7 @@ import Layout from '../layouts/Layout.astro';
             document.getElementById('threshold')?.addEventListener('input', updateThreshold);
             document.getElementById('blur')?.addEventListener('input', updateBlur);
             document.getElementById('download')?.addEventListener('click', downloadImage);
+            loadImage('/space.jpg'); // preselected example
         }
 
         init();

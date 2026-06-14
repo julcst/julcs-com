@@ -181,6 +181,7 @@ import Layout from '../layouts/Layout.astro';
             document.getElementById('upload')?.addEventListener('change', handleImageUpload);
             document.getElementById('threshold')?.addEventListener('input', updateThreshold);
             document.getElementById('download')?.addEventListener('click', downloadImage);
+            loadImage('/space.jpg'); // preselected example
         }
 
         init();
