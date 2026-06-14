@@ -109,6 +109,12 @@ const CV_TEASERS: { match: string; teaser: TeaserMedia }[] = [
         match: "gltemplate",
         teaser: teaser("gltemplate.png", "gltemplate OpenGL framework teaser"),
     },
+    {
+        match: "bevy_trail",
+        teaser: teaser("bevy_trail.webp", "bevy_trail teaser", {
+            video: "/teasers/bevy_trail.webm",
+        }),
+    },
 ];
 
 function findTeaser(title: string): TeaserMedia | undefined {
