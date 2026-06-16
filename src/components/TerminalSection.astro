@@ -38,7 +38,7 @@ const { id, class: className, isIntro = false, navLinks = [] } = Astro.props;
         )
     }
     <div class="terminal-frame">
-        <div class="typed">
+        <div class="typed notranslate" translate="no">
             <slot />
         </div>
     </div>
@@ -283,6 +283,13 @@ const { id, class: className, isIntro = false, navLinks = [] } = Astro.props;
         return out;
     }
 
+    function finalize(line: Line) {
+        line.typing = false;
+        line.done = true;
+        line.el.style.opacity = "1";
+        for (const segment of line.segments) segment.node.textContent = segment.text;
+    }
+
     async function typeLine(line: Line) {
         if (line.typing || line.done) return;
         line.typing = true;
@@ -293,6 +300,13 @@ const { id, class: className, isIntro = false, navLinks = [] } = Astro.props;
             for (let count = 1; count <= segment.text.length; count++) {
                 if (line.cancel) {
                     line.typing = false;
+                    return;
+                }
+                // If a translator/extension swapped our text node out of the
+                // DOM, scrambling into the orphan leaves visible gibberish.
+                // Restore plain text everywhere and stop.
+                if (!segment.node.isConnected) {
+                    finalize(line);
                     return;
                 }
                 segment.node.textContent = partial(segment.text, count);
