@@ -8,6 +8,12 @@ cv:
   social_networks:
     - network: GitHub
       username: julcst
+    - network: LinkedIn
+      username: julcst
+    - network: Google Scholar
+      username: 310h0qkAAAAJ
+    - network: ORCID
+      username: 0000-0003-4153-9590
   sections:
     education:
       - institution: University of Bonn
@@ -76,7 +82,7 @@ cv:
       #   start_date: 2019-09
       #   end_date: 2021-05
     projects:
-      - name: "[tsnn](https://github.com/julcst/tsnn) (unpublished)"
+      - name: "[tsnn](https://github.com/julcst/tsnn)"
         start_date: 2026-05
         end_date: present
         summary: High-performance Slang-native tiny-cuda-nn alternative using Slang's auto-differentiation.
@@ -88,8 +94,7 @@ cv:
       - name: "[PhotonNRC](https://github.com/julcst/photon-nrc)"
         start_date: 2025-02
         end_date: present
-        summary:
-          Falcor implementation of the poster "Photon-Driven Neural Radiance Caching".
+        summary: Falcor implementation of the poster "Photon-Driven Neural Radiance Caching".
         highlights:
           - Rebuilt the method as a clean Falcor render graph, improving modularity and performance
           - Implemented SPPM with hardware-accelerated inverse radius search and stochastic accumulation, NRC via tiny-cuda-nn, and SPPC training
