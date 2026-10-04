@@ -31,7 +31,7 @@ cv:
         highlights:
           - "Grade: 1.1 ([top 3%](https://www.informatik.uni-bonn.de/de/studium/pruefungsamt/dokumente/ects-grade-distribution-2023-bachelor.pdf))"
           - "Bachelor's Thesis (1.0): Bidirectional Neural Radiance
-            Caching [[full-res](https://files.julcs.com/bachelor-thesis.pdf)] [[low-res](https://files.julcs.com/bachelor-thesis-low-res.pdf)]"
+            Caching [[full-res](https://files.julcs.com/bachelor-thesis.pdf)] [[low-res](https://files.julcs.com/bachelor-thesis-low-res.pdf)] [[slides](https://files.julcs.com/bachelor-thesis-presentation.pdf)]"
       # - institution: Max-Planck-Gymnasium Delmenhorst
       #   area: General Higher Education Entrance Qualification
       #   degree: Abitur
@@ -82,18 +82,23 @@ cv:
       #   start_date: 2019-09
       #   end_date: 2021-05
     projects:
+      - name: "Lab: Towards Real-Time Neural Path Guiding"
+        start_date: 2026-05
+        end_date: 2026-09
+        summary: Explored current state and real-time applicability of neural path guiding using Slang [[report](https://files.julcs.com/lab-npg-report.pdf)] [[slides](https://files.julcs.com/lab-npg-presentation.pdf)]
       - name: "[tsnn](https://github.com/julcst/tsnn)"
         start_date: 2026-05
         end_date: present
-        summary: High-performance Slang-native tiny-cuda-nn alternative using Slang's auto-differentiation.
+        summary: High-performance Slang-native neural density estimation using Slang's auto-differentiation.
         highlights:
-          - Implemented neural spline flows, hash grid encodings, MLPs, Adam, and more
+          - Implemented neural spline flows, neural mixture models, hash grid encodings, MLPs, Adam, etc
           - Achieves full kernel fusion with Falcor path tracer
-          - Slightly outperforms tiny-cuda-nn in my NRC benchmark
-          - Written for my current lab research on real-time neural importance sampling
+          - Uses cooperative vectorization to accelerate MLP evaluation and backpropagation
+          - Outperforms tiny-cuda-nn with JIT in image-compression benchmark
+          - Written for my lab on real-time neural path guiding
       - name: "[PhotonNRC](https://github.com/julcst/photon-nrc)"
         start_date: 2025-02
-        end_date: present
+        end_date: 2026-05
         summary: Falcor implementation of the poster "Photon-Driven Neural Radiance Caching".
         highlights:
           - Rebuilt the method as a clean Falcor render graph, improving modularity and performance
@@ -152,7 +157,7 @@ cv:
       - label: APIs
         details: OpenGL, OptiX, Falcor, wgpu, bevy, Godot, PyTorch
       - label: Research Interests
-        details: Real-Time GI, Neural Rendering, Path Tracing, Photon Mapping, Machine Learning, Normalizing Flows
+        details: Real-Time GI, Neural Path Guiding, Neural Radiance Caching, Photon Mapping, Neural Density Estimation
       - label: Spoken Languages
         details: "German (native), English (TOEFL iBT: 110/120)"
 
